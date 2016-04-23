@@ -1,5 +1,14 @@
 source 'https://rubygems.org'
 
+gem 'capistrano', '~> 3.1.0'
+gem 'capistrano-bundler', '~> 1.1.2'
+gem 'capistrano-rails', '~> 1.1.1'
+
+# Add this if you're using rbenv
+# gem 'capistrano-rbenv', github: "capistrano/rbenv"
+
+# Add this if you're using rvm
+# gem 'capistrano-rvm', github: "capistrano/rvm"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.6'
@@ -40,6 +49,10 @@ end
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
+end
+
+group :development do
+  gem 'capistrano-rbenv', '~> 2.0', require: false
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
