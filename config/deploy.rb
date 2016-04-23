@@ -1,5 +1,6 @@
 # config valid only for current version of Capistrano
 set :rbenv_ruby, '2.3.0'
+set :bundle_flags, '--quiet'
 
 set :application, 'proecto10'
 set :repo_url, 'git@github.com:TristanPouliquen/IIC3103-Rails10.git'
