@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get 'almacenes' => 'warehouse#getWarehouses'
   get 'skusWithStock' => 'warehouse#getSkusWithStock'
   get 'stock' => 'warehouse#getStock'
+  post 'moveStock' => 'warehouse#moveStock'
 
   root 'pages#home'
 

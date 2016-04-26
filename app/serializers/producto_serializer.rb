@@ -1,3 +1,3 @@
 class ProductoSerializer < ActiveModel::Serializer
-  attributes :sku, :costos
+  attributes :id, :sku, :costos
 end

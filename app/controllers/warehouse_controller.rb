@@ -37,4 +37,21 @@ class WarehouseController < ApplicationController
 
     render json: @results, root: false
   end
+
+  def moveStock
+    almacen = Almacen.find(params[:almacenId])
+    producto = Producto.find(params[:productoId])
+    if 
+    if almacen.has_space?
+      producto.update_attributes(almacen)
+      response = producto
+    else
+      response = "No espacio en el almacen de destino"
+      status = :bad_request
+    end
+
+    render json: response, status: status
+  rescue ActiveRecord::RecordNotFound
+    render json: "Falta argumentos", status: :bad_request
+  end
 end
