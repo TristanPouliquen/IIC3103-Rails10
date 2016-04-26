@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get 'almacenes' => 'warehouse#getWarehouses'
+  get 'skusWithStock/:id' => 'warehouse#getSkusWithStock'
+
   root 'pages#home'
 
   # The priority is based upon order of creation: first created -> highest priority.
