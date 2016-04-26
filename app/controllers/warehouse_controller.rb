@@ -20,4 +20,21 @@ class WarehouseController < ApplicationController
     end
     render json: @result, root: false
   end
+
+  def getStock
+    if params.has_key?(:limit)
+      if params[:limit] > 200
+        limit = 200
+      else
+        limit = params[:limit]
+      end
+    else
+      limit = 100
+    end
+    @results = Producto
+      .where('almacen_id' => params[:id], 'sku' => params[:sku])
+      .limit(limit)
+
+    render json: @results, root: false
+  end
 end

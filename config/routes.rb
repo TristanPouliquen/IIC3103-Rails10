@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   get 'almacenes' => 'warehouse#getWarehouses'
-  get 'skusWithStock/:id' => 'warehouse#getSkusWithStock'
+  get 'skusWithStock' => 'warehouse#getSkusWithStock'
+  get 'stock' => 'warehouse#getStock'
 
   root 'pages#home'
 
