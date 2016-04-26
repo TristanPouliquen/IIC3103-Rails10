@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  sku: MyString
+  sku: 1
   costos: 1.5
+  almacen_id: 
 
 two:
-  sku: MyString
+  sku: 1
   costos: 1.5
+  almacen_id: 

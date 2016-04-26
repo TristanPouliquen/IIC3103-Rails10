@@ -11,27 +11,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160426175318) do
+ActiveRecord::Schema.define(version: 20160426194905) do
 
-  create_table "products", force: :cascade do |t|
-    t.string   "sku",          limit: 255
-    t.float    "costos",       limit: 24
-    t.integer  "warehouse_id", limit: 4
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+  create_table "almacens", force: :cascade do |t|
+    t.integer  "espacioUtilizado", limit: 4
+    t.integer  "espacioTotal",     limit: 4
+    t.boolean  "recepcion"
+    t.boolean  "despacho"
+    t.boolean  "pulmon"
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
 
-  add_index "products", ["warehouse_id"], name: "index_products_on_warehouse_id", using: :btree
-
-  create_table "warehouses", force: :cascade do |t|
-    t.integer  "usedSpace",  limit: 4
-    t.integer  "totalSpace", limit: 4
-    t.boolean  "reception"
-    t.boolean  "dispatch"
-    t.boolean  "backup"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+  create_table "productos", force: :cascade do |t|
+    t.integer  "sku",        limit: 4
+    t.float    "costos",     limit: 24
+    t.integer  "almacen_id", limit: 4
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
   end
 
-  add_foreign_key "products", "warehouses"
+  add_index "productos", ["almacen_id"], name: "index_productos_on_almacen_id", using: :btree
+
+  add_foreign_key "productos", "almacens"
 end
