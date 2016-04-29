@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160426194905) do
+ActiveRecord::Schema.define(version: 20160426224158) do
 
   create_table "almacens", force: :cascade do |t|
     t.integer  "espacioUtilizado", limit: 4
@@ -27,8 +27,9 @@ ActiveRecord::Schema.define(version: 20160426194905) do
     t.integer  "sku",        limit: 4
     t.float    "costos",     limit: 24
     t.integer  "almacen_id", limit: 4
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.string   "name",       limit: 255
   end
 
   add_index "productos", ["almacen_id"], name: "index_productos_on_almacen_id", using: :btree
