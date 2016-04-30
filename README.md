@@ -10,9 +10,11 @@
 
 1. Clone the project on your computer
 2. Open a console in the folder of the project
-3. Run `bundle install` (si no funciona actualizar bundle gem update bundle )
-4. Run `rake db:create`
-5. Run `rake db:migrate`
+3. Run `bundle install` (if it doesn't try updating bundler by running `gem update bundler` )
+4. Copy the `config/database.yml.dist` and `config/secrets.yml.dist` removing the `.dist` extension
+5. Verify the credentials in `config/database.yml` so that they match those of your MySQL installation
+6. Run `rake db:create`
+7. Run `rake db:migrate`
 
 ## Run the website locally
 
