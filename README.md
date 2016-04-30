@@ -10,7 +10,7 @@
 
 1. Clone the project on your computer
 2. Open a console in the folder of the project
-3. Run `bundle install`
+3. Run `bundle install` (si no funciona actualizar bundle gem update bundle )
 4. Run `rake db:create`
 5. Run `rake db:migrate`
 
