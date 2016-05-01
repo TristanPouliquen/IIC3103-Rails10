@@ -1,8 +1,18 @@
 Rails.application.routes.draw do
-  get 'almacenes' => 'warehouse#getWarehouses'
-  get 'skusWithStock' => 'warehouse#getSkusWithStock'
-  get 'stock' => 'warehouse#getStock'
-  post 'moveStock' => 'warehouse#moveStock'
+  scope :path => '/bodega' do
+    get 'almacenes' => 'warehouse#getWarehouses'
+    get 'skusWithStock' => 'warehouse#getSkusWithStock'
+    get 'stock' => 'warehouse#getStock'
+    post 'moveStock' => 'warehouse#moveStock'
+  end
+
+  scope :path => '/api' do 
+    get 'consultar/:sku' => 'api#getStockForSku'
+    post 'oc/recibir/:idoc' => 'api#receivePurchaseOrder'
+    post 'facturas/recibir/:idfactura' => 'api#receiveBill'
+    post 'pagos/recibir/:idtrx' => 'api#receivePayment'
+    get 'saldo' => 'api#getAccount'
+  end
 
   root 'pages#home'
 
