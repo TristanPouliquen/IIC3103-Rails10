@@ -38,7 +38,7 @@ class WarehouseController < ApplicationController
     render json: @results, root: false
   end
 
-  def moveStock
+  def moverStock
     almacen = Almacen.find(params[:almacenId])
     producto = Producto.find(params[:productoId])
     if 
@@ -46,12 +46,36 @@ class WarehouseController < ApplicationController
       producto.update_attributes(almacen)
       response = producto
     else
-      response = "No espacio en el almacen de destino"
+      response = "No hay espacio en el almacen de destino"
       status = :bad_request
     end
 
     render json: response, status: status
   rescue ActiveRecord::RecordNotFound
-    render json: "Falta argumentos", status: :bad_request
+    render json: "Falta de argumentos", status: :bad_request
   end
+
+  def moverStockBodega
+      almacen = Almacen.find(params[:almacenId])
+      producto = Producto.find(params[:productoId])   
+     #a completar
+  end
+
+  def despacharStock
+     producto = Producto.find(params[:productoId])    
+     #a completar
+  end
+
+  def producirStock
+     sku = Producto.find(params[:sku])    
+     #a completar
+  end
+
+  def getCuentaFabrica
+      @cuentaFabrica = 00123400000000 #Nose cual es el número nuestro, inventé cualquiera :S
+      render json: @cuentaFabrica, root: false
+    end
+
 end
+
+  
