@@ -78,7 +78,7 @@ class WarehouseController < ApplicationController
         producto.update_attributes(almacen)
         response = producto
       else
-        response = "No hay espacio en el almacen de destino"
+        response = "No espacio en el almacen de destino"
         status = :bad_request
       end
 

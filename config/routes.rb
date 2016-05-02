@@ -11,7 +11,7 @@ Rails.application.routes.draw do
     post 'oc/recibir/:idoc' => 'api#receivePurchaseOrder'
     post 'facturas/recibir/:idfactura' => 'api#receiveBill'
     post 'pagos/recibir/:idtrx' => 'api#receivePayment'
-    get 'saldo' => 'api#getAccount'
+    get 'saldo' => 'api#getAccount' #to test the good connection to the general system service
   end
 
   root 'pages#home'
