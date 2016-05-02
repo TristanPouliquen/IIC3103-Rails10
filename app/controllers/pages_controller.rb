@@ -2,6 +2,12 @@ require 'json'
 
 class PagesController < ApplicationController
   def home
+    ordenesId = OrdenCompra.all
+    @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}
+    ordenesId.each do |orden|
+      orden = JSON.parse(get(ENV['general_system_url'] + 'oc/obtener/' + orden['idOc']).body)
+      @ordenes[orden['estado']] << orden
+    end
   end
 
   def warehouses

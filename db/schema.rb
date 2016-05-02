@@ -11,6 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160502141320) do
+ActiveRecord::Schema.define(version: 20160502142649) do
+
+  create_table "facturas", force: :cascade do |t|
+    t.integer  "idFactura",  limit: 4
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  create_table "orden_compras", force: :cascade do |t|
+    t.integer  "idOC",       limit: 4
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
 
 end
