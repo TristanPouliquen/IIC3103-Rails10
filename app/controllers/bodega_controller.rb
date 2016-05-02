@@ -1,6 +1,8 @@
 class BodegaController < ApplicationController
   def getAlmacenes
-    return get(ENV['bodega_system_url'] + 'almacenes', hmac = generateHash('GET'))
+  	hmac= generateHash('GET')
+  	uri= ENV['bodega_system_url'] + 'almacenes'
+    return get(uri, hmac= hmac)
   end
 
   def getSkusWithStock(almacenId)
