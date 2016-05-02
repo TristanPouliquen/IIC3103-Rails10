@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get 'admin/index'
+  get 'admin/produccion' => "admin#production"
+  get 'admin/compras' => "admin#purchase"
+
   scope :path => '/bodega' do
     get 'almacenes' => 'warehouse#getWarehouses'
     get 'skusWithStock' => 'warehouse#getSkusWithStock'

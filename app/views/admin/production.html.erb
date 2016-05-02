@@ -1,0 +1,28 @@
+<div class="col-md-offset-10 col-md-offset-1">
+  <h1>Producir productos</h1>
+  <p>Saldo: <%= @saldo %> CLP</p>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>SKU</th>
+        <th>Nombre</th>
+        <th>Precio unitario (CLP)</th>
+        <th>Lote de produccion</th>
+        <th>Tiempo de produccion</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <tr>
+          <td><%= product["sku"] %></td>
+          <td><%= product["name"] %></td>
+          <td><%= product["unitPrice"] %></td>
+          <td><%= product["lot"] %></td>
+          <td><%= product["productionTime"] %></td>
+          <td><a href="#" class="btn btn-small btn-primary" <% if !product['productionOK'] %>disabled<% end%> >Producir</a></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

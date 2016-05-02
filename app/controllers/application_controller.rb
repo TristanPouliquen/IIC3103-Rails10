@@ -1,4 +1,5 @@
 require 'net/http'
+require 'json'
 
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.

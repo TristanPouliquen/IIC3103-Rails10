@@ -25,20 +25,42 @@
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-          <li
-            <% if current_page?(:controller => 'pages', :action => 'home') %>
-              class="active"
-            <% end %>
-          ><a href="/">Ordenes de compra</a></li>
-          <li
-            <% if current_page?(:controller => 'pages', :action => 'warehouses') %>
-              class="active"
-            <% end %>
-          ><a href="/bodegas">Estado de las bodegas</a></li>
-          <lli>
+          <% if controller.controller_name == "pages" %>
+            <li
+              <% if current_page?(:controller => 'pages', :action => 'home') %>
+                class="active"
+              <% end %>
+            ><a href="/">Ordenes de compra</a>
+            </li>
+            <li
+              <% if current_page?(:controller => 'pages', :action => 'warehouses') %>
+                class="active"
+              <% end %>
+            ><a href="/bodegas">Estado de las bodegas</a>
+            </li>
+          <% elsif controller.controller_name == "admin" %>
+            <li
+              <% if current_page?(:controller => 'admin', :action => 'index') %>
+                class="active"
+              <% end %>
+            ><a href="/admin/index">Estado de bodegas</a>
+            </li>
+            <li
+              <% if current_page?(:controller => 'admin', :action => 'production') %>
+                class="active"
+              <% end %>
+            ><a href="/admin/produccion">Produccion</a>
+            </li>
+            <li
+              <% if current_page?(:controller => 'admin', :action => 'purchase') %>
+                class="active"
+              <% end %>
+            ><a href="/admin/compras">Compras</a>
+            </li>
+          <% end %>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="#">Link</a></li>
+          <li><a href="/admin/index">Admin</a></li>
         </ul>
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
