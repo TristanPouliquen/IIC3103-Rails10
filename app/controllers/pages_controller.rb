@@ -1,6 +1,6 @@
 require 'json'
 
-class PagesController < ApplicationController
+class PagesController < BodegaController
   def home
     ordenesId = OrdenCompra.all
     @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}
@@ -28,10 +28,6 @@ class PagesController < ApplicationController
     @almacen_pulmon['porcentaje'] = ((@almacen_pulmon["usedSpace"].to_f / @almacen_pulmon["totalSpace"].to_f) * 100).round(2)
 
     @stock = getStockPorAlmacen
-  end
-
-  def getAlmacenes
-    return get(ENV['bodega_system_url'] + 'almacenes', hmac = generateHash('GET'))
   end
 
   def getStockPorAlmacen
