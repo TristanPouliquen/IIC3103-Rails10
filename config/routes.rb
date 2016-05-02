@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   end
 
   scope :path => '/api' do 
-    get 'consultar/:sku' => 'api#getStockForSku'
+    get 'consultar/:sku' => 'api#getStockWithSku'
     post 'oc/recibir/:idoc' => 'api#receivePurchaseOrder'
     post 'facturas/recibir/:idfactura' => 'api#receiveBill'
     post 'pagos/recibir/:idtrx' => 'api#receivePayment'

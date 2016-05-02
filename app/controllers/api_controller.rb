@@ -1,4 +1,5 @@
 require 'net/http'
+require 'json'
 
 class ApiController < ApplicationController
   def getAccount
@@ -8,12 +9,15 @@ class ApiController < ApplicationController
   end
 
   def getStockWithSku
-    almacen = Almacen.where('despacho' => true)
-    stock = Producto
-      .where('almacen_id' => almacen.id, 'sku' => params[:sku])
-      .length
+    hmac = generateHash('GET' + ENV['almacen_despacho'])
+    stock = JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_despacho'], hmac = hmac).body)
+    @result = {'sku' => params[:sku].to_i, 'stock' => 0}
 
-    @result = { 'sku' => params[:sku], 'stock' => stock}
+    stock.each do |product|
+      if product['_id'].to_i == params[:sku].to_i
+        @result['stock'] = product['total']
+      end
+    end
 
     render json: @result, root: false
   end
