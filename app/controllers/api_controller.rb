@@ -76,7 +76,13 @@ class ApiController < BodegaController
     purchaseOrder = getPurchaseOrder(idOc)
 
     if !purchaseOrder.empty?
+      OrdenCompra.create idOC: idOc.to_s
+
       stock = retrieveStockWithSku(purchaseOrder['sku'])
+
+      if purchaseOrder['cantidad'] > stock
+        return {'accepted' => false, 'message' => 'No suficiente stock'}
+      end
     end
   end
 
