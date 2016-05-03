@@ -79,7 +79,11 @@ class AdminController < BodegaController
   end
 
   def purchase
-    # TODO create OC and send it to group
+    purchaseOrder = putPurchaseOrder(params[:sku], params[:provider], params[:required], params[:unitPrice])
+    if true # check for purchaseOrder creation success : purchaseOrder.code == :success
+      # Recuperate ocId
+      # sendPurchaseOrder(ocId, group)
+    end
   end
 
   def processProductionRequirements(products, saldo)
@@ -153,5 +157,26 @@ class AdminController < BodegaController
     return JSON.parse(get(uri).body)['stock']
   rescue JSON::ParserError
     return 0
+  end
+
+  def putPurchaseOrder(sku, group, quantity, unitPrice)
+    uri = ENV['general_system_url'] + 'oc/crear'
+    data = {
+      'canal' => 'b2b',
+      'cantidad' => quantity.to_i,
+      'sku' => sku.to_s,
+      'cliente' => ENV['id_grupo'].to_s,
+      'proveedor' => group.to_s,
+      'precioUnitario' => unitPrice.to_i,
+      'fechaEntrega' => Time.now.getutc.to_i,
+      'notas' => ''
+    }
+
+    return put(uri, data)
+  end
+
+  def sendPurchaseOrder(ocId, group)
+    uri = 'http://integra' + group + '.ing.puc.cl/api/oc/recibir/' + ocId.to_s
+    return get(uri)
   end
 end
