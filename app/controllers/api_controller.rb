@@ -149,10 +149,10 @@ class ApiController < BodegaController
     return response
   end
 
-  def rejectPurchaseOrder(idOc, data)
+  def rejectPurchaseOrder(idOc, message)
     # Call mare.ing.puc.cl/oc/rechazar/idOc
 
-    response = post(ENV["general_system_url"] + 'oc/rechazar/' + idOc.to_s, data)
+    response = post(ENV["general_system_url"] + 'oc/rechazar',  {'id'=> idOc.to_s, 'rechazo' => message})
 
     return response
   end
