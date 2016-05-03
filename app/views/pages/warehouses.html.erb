@@ -1,67 +1,8 @@
-<div class="col-md-10 col-md-offset-1">
-  <h1>Bodegas de los Cuates del Tequila</h1>
+<h1>Bodegas de los Cuates del Tequila</h1>
 
-  <h2>Bodega de recepcion</h2>
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1">
-        <h3>Espacio utilizado</h3>
-          <p><%= @almacen_recepcion["usedSpace"] %> / <%= @almacen_recepcion["totalSpace"] %></p>
-          <div class="progress">
-            <div class="progress-bar" role="progressbar" aria-valuenow="<%= @almacen_recepcion["porcentaje"] %>" aria-valuemin="0" aria-valuemax="100" style="width: <%= @almacen_recepcion["porcentaje"] %>;">
-              <%= @almacen_recepcion["usedSpace"] %> / <%= @almacen_recepcion["totalSpace"] %>
-            </div>
-          </div>
-        <h3>Productos en stock</h3>
-          <ul>
-            <% if @stock['recepcion'].empty? %>
-              <li>No productos en el almacen</li>
-            <% end %>
-            <% @stock['recepcion'].each do |product| %>
-              <li><%= product['_id']%> : <%= product['total'] %></li>li>
-            <% end %>
-          </ul>
-      </div>
-    </div>
-  <h2>Bodega de despacho</h2>
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1">
-        <h3>Espacio utilizado</h3>
-          <p><%= @almacen_despacho["usedSpace"] %> / <%= @almacen_despacho["totalSpace"] %></p>
-          <div class="progress">
-            <div class="progress-bar" role="progressbar" aria-valuenow="<%= @almacen_despacho["porcentaje"] %>" aria-valuemin="0" aria-valuemax="100" style="width: <%= @almacen_despacho["porcentaje"] %>%;">
-              <%= @almacen_despacho["usedSpace"] %> / <%= @almacen_despacho["totalSpace"] %>
-            </div>
-          </div>
-        <h3>Productos en stock</h3>
-          <ul>
-            <% if @stock['recepcion'].empty? %>
-              <li>No productos en el almacen</li>
-            <% end %>
-            <% @stock['despacho'].each do |product| %>
-              <li><%= product['_id']%> : <%= product['total'] %></li>li>
-            <% end %>
-          </ul>
-      </div>
-    </div>
-  <h2>Bodega pulmon</h2>
-    <div class="row">
-      <div class="col-md-10 col-md-offset-1">
-        <h3>Espacio utilizado</h3>
-          <p><%= @almacen_pulmon["usedSpace"] %> / <%= @almacen_pulmon["totalSpace"] %></p>
-          <div class="progress">
-            <div class="progress-bar" role="progressbar" aria-valuenow="<%= @almacen_pulmon["porcentaje"] %>" aria-valuemin="0" aria-valuemax="100" style="width: <%= @almacen_pulmon["porcentaje"] %>%;">
-              <%= @almacen_pulmon["usedSpace"] %> / <%= @almacen_pulmon["totalSpace"] %>
-            </div>
-          </div>
-        <h3>Productos en stock</h3>
-          <ul>
-            <% if @stock['recepcion'].empty? %>
-              <li>No productos en el almacen</li>
-            <% end %>
-            <% @stock['pulmon'].each do |product| %>
-              <li><%= product['_id']%> : <%= product['total'] %></li>li>
-            <% end %>
-          </ul>
-      </div>
-    </div>
-</div>
+<h2>Bodega de recepcion</h2>
+<%= render partial: "shared/almacen", :object => @almacen_recepcion %>
+<h2>Bodega de despacho</h2>
+<%= render partial: "shared/almacen", :object => @almacen_despacho %>
+<h2>Bodega pulmon</h2>
+<%= render partial: "shared/almacen", :object => @almacen_pulmon %>

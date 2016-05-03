@@ -1,144 +1,139 @@
-<div class="col-md-10 col-md-offset-1">
-  <h1>Ordenes de compra</h1>
-  <div>
+<h1>Ordenes de compra</h1>
 
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs nav-justified" role="tablist">
-      <li role="presentation" class="active"><a href="#creadas" aria-controls="home" role="tab" data-toggle="tab">Creadas</a></li>
-      <li role="presentation"><a href="#aceptadas" aria-controls="profile" role="tab" data-toggle="tab">Aceptadas</a></li>
-      <li role="presentation"><a href="#rechazadas" aria-controls="messages" role="tab" data-toggle="tab">Rechazadas</a></li>
-      <li role="presentation"><a href="#finalizadas" aria-controls="settings" role="tab" data-toggle="tab">Finalizadas</a></li>
-      <li role="presentation"><a href="#anuladas" aria-controls="settings" role="tab" data-toggle="tab">Anuladas</a></li>
-    </ul>
+<!-- Nav tabs -->
+<ul class="nav nav-tabs nav-justified" role="tablist">
+  <li role="presentation" class="active"><a href="#creadas" aria-controls="home" role="tab" data-toggle="tab">Creadas</a></li>
+  <li role="presentation"><a href="#aceptadas" aria-controls="profile" role="tab" data-toggle="tab">Aceptadas</a></li>
+  <li role="presentation"><a href="#rechazadas" aria-controls="messages" role="tab" data-toggle="tab">Rechazadas</a></li>
+  <li role="presentation"><a href="#finalizadas" aria-controls="settings" role="tab" data-toggle="tab">Finalizadas</a></li>
+  <li role="presentation"><a href="#anuladas" aria-controls="settings" role="tab" data-toggle="tab">Anuladas</a></li>
+</ul>
 
-    <!-- Tab panes -->
-    <div class="tab-content">
-      <div role="tabpanel" class="tab-pane active fade in" id="creadas">
-        <table class="table table-striped">
-          <thead>
-            <tr class="text-center">
-              <th>ID</th>
-              <th>Fecha de creacion</th>
-              <th>Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if @ordenes['creada'].empty? %>
-              <tr class="text-center">
-                <td class="text-muted" colspan="3">No ordenes de compra</td>
-              </tr>
-            <% end %>
-            <% @ordenes['creada'].each do |orden| %>
-              <tr>
-                <td><%= orden['id'] %></td>
-                <td><%= orden['fechaCreacion'] %></td>
-                <td><%= orden['monto'] %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <div role="tabpanel" class="tab-pane fade" id="aceptadas">
-        <table class="table table-striped">
-          <thead>
-            <tr class="text-center">
-              <th>ID</th>
-              <th>Fecha de creacion</th>
-              <th>Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if @ordenes['aceptada'].empty? %>
-              <tr class="text-center">
-                <td class="text-muted" colspan="3">No ordenes de compra</td>
-              </tr>
-            <% end %>
-            <% @ordenes['aceptada'].each do |orden| %>
-              <tr>
-                <td><%= orden['id'] %></td>
-                <td><%= orden['fechaCreacion'] %></td>
-                <td><%= orden['monto'] %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <div role="tabpanel" class="tab-pane fade" id="rechazadas">
-        <table class="table table-striped">
-          <thead>
-            <tr class="text-center">
-              <th>ID</th>
-              <th>Fecha de creacion</th>
-              <th>Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if @ordenes['rechazada'].empty? %>
-              <tr class="text-center">
-                <td class="text-muted" colspan="3">No ordenes de compra</td>
-              </tr>
-            <% end %>
-            <% @ordenes['rechazada'].each do |orden| %>
-              <tr>
-                <td><%= orden['id'] %></td>
-                <td><%= orden['fechaCreacion'] %></td>
-                <td><%= orden['monto'] %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <div role="tabpanel" class="tab-pane fade" id="finalizadas">
-        <table class="table table-striped">
-          <thead>
-            <tr class="text-center">
-              <th>ID</th>
-              <th>Fecha de creacion</th>
-              <th>Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if @ordenes['finalizada'].empty? %>
-              <tr class="text-center">
-                <td class="text-muted" colspan="3">No ordenes de compra</td>
-              </tr>
-            <% end %>
-            <% @ordenes['finalizada'].each do |orden| %>
-              <tr>
-                <td><%= orden['id'] %></td>
-                <td><%= orden['fechaCreacion'] %></td>
-                <td><%= orden['monto'] %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <div role="tabpanel" class="tab-pane fade" id="anuladas">
-        <table class="table table-striped">
-          <thead>
-            <tr class="text-center">
-              <th>ID</th>
-              <th>Fecha de creacion</th>
-              <th>Monto</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if @ordenes['anulada'].empty? %>
-              <tr class="text-center">
-                <td class="text-muted" colspan="3">No ordenes de compra</td>
-              </tr>
-            <% end %>
-            <% @ordenes['anulada'].each do |orden| %>
-              <tr>
-                <td><%= orden['id'] %></td>
-                <td><%= orden['fechaCreacion'] %></td>
-                <td><%= orden['monto'] %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
+<!-- Tab panes -->
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane active fade in" id="creadas">
+    <table class="table table-striped">
+      <thead>
+        <tr class="text-center">
+          <th>ID</th>
+          <th>Fecha de creacion</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @ordenes['creada'].empty? %>
+          <tr class="text-center">
+            <td class="text-muted" colspan="3">No ordenes de compra</td>
+          </tr>
+        <% end %>
+        <% @ordenes['creada'].each do |orden| %>
+          <tr>
+            <td><%= orden['id'] %></td>
+            <td><%= orden['fechaCreacion'] %></td>
+            <td><%= orden['monto'] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
   </div>
-
+  <div role="tabpanel" class="tab-pane fade" id="aceptadas">
+    <table class="table table-striped">
+      <thead>
+        <tr class="text-center">
+          <th>ID</th>
+          <th>Fecha de creacion</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @ordenes['aceptada'].empty? %>
+          <tr class="text-center">
+            <td class="text-muted" colspan="3">No ordenes de compra</td>
+          </tr>
+        <% end %>
+        <% @ordenes['aceptada'].each do |orden| %>
+          <tr>
+            <td><%= orden['id'] %></td>
+            <td><%= orden['fechaCreacion'] %></td>
+            <td><%= orden['monto'] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="rechazadas">
+    <table class="table table-striped">
+      <thead>
+        <tr class="text-center">
+          <th>ID</th>
+          <th>Fecha de creacion</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @ordenes['rechazada'].empty? %>
+          <tr class="text-center">
+            <td class="text-muted" colspan="3">No ordenes de compra</td>
+          </tr>
+        <% end %>
+        <% @ordenes['rechazada'].each do |orden| %>
+          <tr>
+            <td><%= orden['id'] %></td>
+            <td><%= orden['fechaCreacion'] %></td>
+            <td><%= orden['monto'] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="finalizadas">
+    <table class="table table-striped">
+      <thead>
+        <tr class="text-center">
+          <th>ID</th>
+          <th>Fecha de creacion</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @ordenes['finalizada'].empty? %>
+          <tr class="text-center">
+            <td class="text-muted" colspan="3">No ordenes de compra</td>
+          </tr>
+        <% end %>
+        <% @ordenes['finalizada'].each do |orden| %>
+          <tr>
+            <td><%= orden['id'] %></td>
+            <td><%= orden['fechaCreacion'] %></td>
+            <td><%= orden['monto'] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="anuladas">
+    <table class="table table-striped">
+      <thead>
+        <tr class="text-center">
+          <th>ID</th>
+          <th>Fecha de creacion</th>
+          <th>Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @ordenes['anulada'].empty? %>
+          <tr class="text-center">
+            <td class="text-muted" colspan="3">No ordenes de compra</td>
+          </tr>
+        <% end %>
+        <% @ordenes['anulada'].each do |orden| %>
+          <tr>
+            <td><%= orden['id'] %></td>
+            <td><%= orden['fechaCreacion'] %></td>
+            <td><%= orden['monto'] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

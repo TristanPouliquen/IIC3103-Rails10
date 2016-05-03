@@ -10,8 +10,7 @@ class AdminController < BodegaController
   end     
 
   def index
-    response = getAlmacenes
-    almacenes = JSON.parse(response.body)
+    almacenes = getAlmacenes
     almacenes.each do |almacen|
       if almacen["recepcion"]
         @almacen_recepcion = almacen
@@ -30,7 +29,7 @@ class AdminController < BodegaController
   end
 
   def production
-    account = JSON.parse(getAccount.body)[0]
+    account = getAccount
     @saldo = account["saldo"]
     corn = {"sku" => 3, "name" => "Maiz", "unitPrice" => 1468, "lot" => 30, 'productionTime' => 3.532, "productionOK" => false}
     meat = {"sku" => 9, "name" => "Carne", "unitPrice" => 1397, "lot" => 620, 'productionTime' => 4.279, "productionOK" => false}
@@ -57,14 +56,21 @@ class AdminController < BodegaController
   def produce
     production_account = JSON.parse(getCuentaFabrica.body)['cuentaId']
     transaction = putTransaction(params[:amount], production_account)
-    if true #check for transaction success : transaction.code == :success
-      # Recuperate trxId
-      # producirStock(params[:sku], trxId, params[:lot])
+    if !transaction.empty?
+      if producirStock(params[:sku], transaction['_id'], params[:lot])
+        flash[:success] = "Produccion pedida correctamente!"
+      else
+        flash[:error] = "Error. Produccion no pedida"
+      end
+    else
+      flash[:error] = "Error con la transaccion."
     end
+
+    redirect_to '/admin/produccion'
   end
 
   def purchases
-    account = JSON.parse(getAccount.body)[0]
+    account = getAccount
     @saldo = account["saldo"]
     wool = {'sku' => 31, 'name' => 'Lana', 'unitPrice' => 1431, 'required' => 368, 'group' => 3,
      'stock' => getStockFromOtherGroup(31,3),}
@@ -79,11 +85,24 @@ class AdminController < BodegaController
   end
 
   def purchase
-    purchaseOrder = putPurchaseOrder(params[:sku], params[:provider], params[:required], params[:unitPrice])
-    if true # check for purchaseOrder creation success : purchaseOrder.code == :success
-      # Recuperate ocId
-      # sendPurchaseOrder(ocId, group)
+    purchaseOrder = putPurchaseOrder(params[:sku], params[:provider], params[:amount], params[:unitPrice])
+
+    if !purchaseOrder.empty?
+      response = sendPurchaseOrder(purchaseOrder['_id'], params[:provider])
+      if response.has_key?('aceptado')
+        if response['aceptado']
+          flash[:success] = 'Orden de compra enviada y aceptada'
+        else
+          flash[:error] = 'Orden de compra rechazada'
+        end
+      else
+        flash[:error] = "Error en el envio de la orden de compra : #{response.to_s}"
+      end
+    else
+      flash[:error] = "Error en a creation de la orden de compra : #{response.to_s}"
     end
+
+    redirect_to '/admin/compras'
   end
 
   def processProductionRequirements(products, saldo)
@@ -117,6 +136,9 @@ class AdminController < BodegaController
 
   def processBuyRequirements(products, saldo)
     products.each do |product|
+      if product['stock'] == nil
+        product['stock'] = 0
+      end
       product['buyOK'] = (product['stock'] >= product['required'] and saldo > product['required']*product['unitPrice'])
     end
 
@@ -126,16 +148,22 @@ class AdminController < BodegaController
   def getStockRecepcion
     hmac = generateHash('GET' + ENV['almacen_recepcion'])
     return JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_recepcion'], hmac = hmac).body)
+  rescue JSON::ParserError
+    return {}
   end
 
   def getStockDespacho
     hmac = generateHash('GET' + ENV['almacen_despacho'])
     return JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_despacho'], hmac = hmac).body)
+  rescue JSON::ParserError
+    return {}
   end
 
   def getStockPulmon
     hmac = generateHash('GET' + ENV['almacen_pulmon'])
     return JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_pulmon'], hmac = hmac).body)
+  rescue JSON::ParserError
+    return {}
   end
 
   def getStockPorAlmacen
@@ -143,17 +171,21 @@ class AdminController < BodegaController
   end
 
   def getAccount
-    return get(ENV['general_system_url'] + 'banco/cuenta/' + ENV['id_cuenta_banco'])
+    return JSON.parse(get(ENV['general_system_url'] + 'banco/cuenta/' + ENV['id_cuenta_banco']).body)[0]
+  rescue JSON::ParserError
+    return {}
   end
 
   def putTransaction(amount, destination)
     uri = ENV['general_system_url'] + 'banco/trx'
     data = {'monto' => amount.to_i, 'origen' => ENV['id_cuenta_banco'].to_s, 'destino' => destination.to_s}
-    put(uri, data= data).methods
+    return JSON.parse(put(uri, data= data).body)
+  rescue JSON::ParserError
+    return {}
   end
 
   def getStockFromOtherGroup(sku, groupNumber)
-    uri = 'http://integra'+ groupNumber.to_s + '.ing.puc.cl/api/consultar' + sku.to_s
+    uri = 'http://integra'+ groupNumber.to_s + '.ing.puc.cl/api/consultar/' + sku.to_s
     return JSON.parse(get(uri).body)['stock']
   rescue JSON::ParserError
     return 0
@@ -161,6 +193,7 @@ class AdminController < BodegaController
 
   def putPurchaseOrder(sku, group, quantity, unitPrice)
     uri = ENV['general_system_url'] + 'oc/crear'
+
     data = {
       'canal' => 'b2b',
       'cantidad' => quantity.to_i,
@@ -168,15 +201,19 @@ class AdminController < BodegaController
       'cliente' => ENV['id_grupo'].to_s,
       'proveedor' => group.to_s,
       'precioUnitario' => unitPrice.to_i,
-      'fechaEntrega' => Time.now.getutc.to_i,
-      'notas' => ''
+      'fechaEntrega' => (Time.now + 60*60*24).to_i*1000,
+      'notas' => "notas"
     }
 
-    return put(uri, data)
+    return JSON.parse(put(uri, data).body)
+  rescue JSON::ParserError
+    return {}
   end
 
   def sendPurchaseOrder(ocId, group)
     uri = 'http://integra' + group + '.ing.puc.cl/api/oc/recibir/' + ocId.to_s
-    return get(uri)
+    return JSON.parse(get(uri).body)
+  rescue JSON::ParserError
+    return {}
   end
 end

@@ -4,7 +4,7 @@ Rails.application.routes.draw do
     get 'produccion' => "admin#production"
     post 'produce' => "admin#produce"
     get 'compras' => "admin#purchases"
-    post 'compra' => 'admin#purchase'
+    post 'purchase' => 'admin#purchase'
   end
 
   scope :path => '/bodega' do

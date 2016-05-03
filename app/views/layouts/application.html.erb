@@ -66,9 +66,10 @@
     </div><!-- /.container-fluid -->
   </nav>
   <div class="container-fluid">
-
-    <%= yield %>
+    <div class="col-md-10 col-md-offset-1">
+      <%= render partial: "shared/flash", object: flash %>
+      <%= yield %>
+    </div>
   </div>
-
 </body>
 </html>

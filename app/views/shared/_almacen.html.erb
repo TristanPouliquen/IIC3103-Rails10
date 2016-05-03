@@ -1,0 +1,20 @@
+<div class="row">
+  <div class="col-md-10 col-md-offset-1">
+    <h3>Espacio utilizado</h3>
+      <p><b><%= almacen["usedSpace"] %> / <%= almacen["totalSpace"] %></b></p>
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="<%= almacen["porcentaje"] %>" aria-valuemin="0" aria-valuemax="100" style="width: <%= almacen["porcentaje"] %>;">
+          <%= almacen["usedSpace"] %> / <%= almacen["totalSpace"] %>
+        </div>
+      </div>
+    <h3>Productos en stock</h3>
+      <ul>
+        <% if @stock['recepcion'].empty? %>
+          <li>No productos en el almacen</li>
+        <% end %>
+        <% @stock['recepcion'].each do |product| %>
+          <li><%= product['_id']%> : <%= product['total'] %></li>li>
+        <% end %>
+      </ul>
+  </div>
+</div>
