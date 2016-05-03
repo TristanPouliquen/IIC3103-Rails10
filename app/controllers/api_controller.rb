@@ -144,7 +144,7 @@ class ApiController < BodegaController
 
   def validatePurchaseOrder(idOc)
     # Call mare.ing.puc.cl/oc/recepcionar/idOc
-    response = post(ENV["general_system_url"] + "oc/recepcionar/" + idOc.to_s)
+    response = post(ENV["general_system_url"] + "oc/recepcionar", {'id' => idOc.to_s})
 
     return response
   end
