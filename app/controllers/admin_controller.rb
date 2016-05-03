@@ -213,8 +213,9 @@ class AdminController < BodegaController
 
   def sendPurchaseOrder(ocId, group)
     uri = 'http://integra' + group + '.ing.puc.cl/api/oc/recibir/' + ocId.to_s
-    return JSON.parse(get(uri).body)
+    response = get(uri)
+    return JSON.parse(response.body)
   rescue JSON::ParserError
-    return {}
+    return {'statusCode': response.code}
   end
 end
