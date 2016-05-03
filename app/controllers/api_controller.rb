@@ -181,7 +181,7 @@ class ApiController < BodegaController
   
   def payBill(idBill)
     bill = getBill(idBill)
-    data = {'monto' => bill.valor_total, 'origen' => ENV['id_cuenta_banco']}
+    data = {'monto' => bill['total'], 'origen' => ENV['id_cuenta_banco']}
     # Call mare.ing.puc.cl/banco/trx with amount and account id in POST parameters
     response = post(ENV["general_system_url"] + "banco/trx", data)
 
@@ -198,12 +198,14 @@ class ApiController < BodegaController
     return response
   end
 
-  def checkPayment(idTransaction)
+  def getPayment(idTransaction)
     # Call mare.ing.puc.cl/banco/trx/idTransaction
     response = get(ENV['general_system_url'] + 'banco/trx/' + idTransaction.to_s)
 
-    return response
+    transaction = JSON.parse(response.body)
+
+    return transaction
+  rescue JSON::ParserError
+    return {}
   end
-  
-  
 end
