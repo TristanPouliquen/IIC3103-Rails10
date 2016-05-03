@@ -130,7 +130,10 @@ class ApiController < BodegaController
   def getPurchaseOrder(idOc)
     response = get(ENV["general_system_url"] + "oc/obtener/" + idOc.to_s)
 
-    return response
+    purchaseOrder = JSON.parse(response.body)[0]
+    return purchaseOrder
+  rescue JSON::ParserError
+    return {}
   end
 
   def cancelPurchaseOrder(idOc)
