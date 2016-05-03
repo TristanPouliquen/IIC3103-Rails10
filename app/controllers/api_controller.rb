@@ -71,7 +71,7 @@ class ApiController < BodegaController
       29 => 1868,
       35 => 1435,
       41 => 1407,
-      54 => 2190,
+      54 => 2190
     }
     purchaseOrder = getPurchaseOrder(idOc)
 
