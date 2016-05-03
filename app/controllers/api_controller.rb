@@ -44,10 +44,10 @@ class ApiController < BodegaController
     result = processBill(params[:idfactura])
 
     if !result.accepted
-      render json: {'aceptado' => false, 'idfactura' => params[:idfactura]}
+      render json: {'validado' => false, 'idfactura' => params[:idfactura]}
     else
       payBill(params[:idfatura])
-      render json: {'aceptado' => true, 'idfactura' => params[:idfactura]}
+      render json: {'validado' => true, 'idfactura' => params[:idfactura]}
     end
   end
 
@@ -55,10 +55,10 @@ class ApiController < BodegaController
     result = processPayment(params[:idtrx], params[:idfactura])
 
     if !result.accepted
-      render json: {'aceptado' => false, 'idtrx' => params[:idtrx]}
+      render json: {'validado' => false, 'idtrx' => params[:idtrx]}
     else
       # TODO : Dispatch  the products
-      render json: {'aceptado' => true, 'idtrx' => params[:idtrx]}
+      render json: {'validado' => true, 'idtrx' => params[:idtrx]}
     end
   end
 
