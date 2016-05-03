@@ -1,7 +1,11 @@
 Rails.application.routes.draw do
-  get 'admin/index'
-  get 'admin/produccion' => "admin#production"
-  get 'admin/compras' => "admin#purchase"
+  scope :path=> '/admin' do
+    get 'index' => "admin#index"
+    get 'produccion' => "admin#production"
+    post 'produce' => "admin#produce"
+    get 'compras' => "admin#purchases"
+    post 'compra' => 'admin#purchase'
+  end
 
   scope :path => '/bodega' do
     get 'almacenes' => 'warehouse#getWarehouses'

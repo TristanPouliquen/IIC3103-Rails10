@@ -20,8 +20,7 @@ class ApplicationController < ActionController::Base
     uri = URI.parse(uri)
     http = Net::HTTP.new(uri.host, uri.port)
 
-    request = Net::HTTP::Get.new(uri.request_uri)
-    request["Content-Type"] = "application/json"
+    request = Net::HTTP::Get.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
     if hmac
       request["Authorization"] = hmac
     end
@@ -33,8 +32,7 @@ class ApplicationController < ActionController::Base
     uri = URI.parse(uri)
     http = Net::HTTP.new(uri.port, uri.host)
 
-    request = Net::HTTP::Post.new(uri.request_uri)
-    request["Content-Type"] = "application/json"
+    request = Net::HTTP::Post.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
     if hmac
       request["Authorization"] = "INTEGRACION grupo10:" + hmac
     end
@@ -48,12 +46,10 @@ class ApplicationController < ActionController::Base
     uri = URI.parse(uri)
     http = Net::HTTP.new(uri.port, uri.host)
 
-    request = Net::HTTP::Put.new(uri.request_uri)
-    request["Content-Type"] = "application/json"
+    request = Net::HTTP::Put.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
     if hmac
       request["Authorization"] = "INTEGRACION grupo10:" + hmac
     end
-
     request.set_form_data(data)
 
     return http.request(request)
@@ -63,8 +59,7 @@ class ApplicationController < ActionController::Base
     uri = URI.parse(uri)
     http = Net.HTTP(uri.port, uri.host)
 
-    request = New::HTTP::Delete.new(uri.request_uri)
-    request["Content-Type"] = "application/json"
+    request = New::HTTP::Delete.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
     if hmac
       request["Authorization"] = "INTEGRACION grupo10:" + hmac
     end

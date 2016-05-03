@@ -5,7 +5,7 @@ class ApiController < ApplicationController
   def getAccount
     response = get(ENV['general_system_url'] + 'banco/cuenta/' + ENV['id_cuenta_banco'])
 
-    render json: response.body    
+    render json: response.body, root: false
   end
 
   def getStockWithSku
@@ -98,7 +98,7 @@ class ApiController < ApplicationController
   
   def createBill(idOc)
     # Call mare.ing.puc.cl/facturas
-    response = put(ENV["general_system_url"] + "facturas")
+    response = put(ENV["general_system_url"] + "facturas", data= {"oc" => idOc})
 
     # TODO : recuperate bill ID (idBill) and group number of origin (groupNumber)
     post("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/facturas/recibir/" + idBill.to_s)

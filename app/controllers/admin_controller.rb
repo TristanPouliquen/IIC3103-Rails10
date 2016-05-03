@@ -55,22 +55,67 @@ class AdminController < BodegaController
   end
 
   def produce
+    production_account = JSON.parse(getCuentaFabrica.body)['cuentaId']
+    transaction = putTransaction(params[:amount], production_account)
+    if true #check for transaction success : transaction.code == :success
+      # Recuperate trxId
+      # producirStock(params[:sku], trxId, params[:lot])
+    end
+  end
+
+  def purchases
+    account = JSON.parse(getAccount.body)[0]
+    @saldo = account["saldo"]
+    wool = {'sku' => 31, 'name' => 'Lana', 'unitPrice' => 1431, 'required' => 368, 'group' => 3,
+     'stock' => getStockFromOtherGroup(31,3),}
+    agave = {'sku' => 44, 'name' => 'Agave', 'unitPrice' => 1091, 'required' => 430, 'group' => 4,
+     'stock' => getStockFromOtherGroup(44,4),}
+    milk = {'sku' => 7, 'name' => 'Leche', 'unitPrice' => 941, 'required' => 2000, 'group' => 12,
+     'stock' => getStockFromOtherGroup(7,12),}
+    salt = {'sku' => 26, 'name' => 'Sal', 'unitPrice' => 753, 'required' => 153, 'group' => 6,
+     'stock' => getStockFromOtherGroup(26,6),}
+
+    @products = processBuyRequirements([wool, agave, milk, salt], @saldo)
   end
 
   def purchase
+    # TODO create OC and send it to group
   end
 
   def processProductionRequirements(products, saldo)
-    productsInRecepcion = getSkusWithStock(ENV['almacen_recepcion'])
+    productsInRecepcion = JSON.parse(getSkusWithStock(ENV['almacen_recepcion']).body)
+    productStockHash = {}
+    productsInRecepcion.each do |product|
+      productStockHash[product['_id']] = product['total']
+    end
+
     products.each do |product|
+      productionCost = product["unitPrice"] * product["lot"]
       if !product.has_key?("requires")
-        productionCost = product["unitPrice"] * product["lot"]
         product["productionOK"] = productionCost < saldo ? true : false
       else
-        # TODO : for each element of product["requires"], verify if the stock of this product is greater than
-        # the requirements and if we have the money to pay for production.
+        sufficientIngredients = true
+        product['requires'].each do |ingredient|
+          if !sufficientIngredients
+            break
+          end
+          if productStockHash.has_key?(ingredient["sku"])
+            sufficientIngredients = ingredient["amount"] < productStockHash[ingredient["sku"]]
+          else
+            sufficientIngredients = false
+          end
+        end
+        product["productionOK"] = (sufficientIngredients and productionCost < saldo) ? true : false
       end
     end
+    return products
+  end
+
+  def processBuyRequirements(products, saldo)
+    products.each do |product|
+      product['buyOK'] = (product['stock'] >= product['required'] and saldo > product['required']*product['unitPrice'])
+    end
+
     return products
   end
 
@@ -79,18 +124,34 @@ class AdminController < BodegaController
     return JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_recepcion'], hmac = hmac).body)
   end
 
-  def getStockPorAlmacen
-    hmac = generateHash('GET' + ENV['almacen_recepcion'])
-    stock_recepcion = JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_recepcion'], hmac = hmac).body)
+  def getStockDespacho
     hmac = generateHash('GET' + ENV['almacen_despacho'])
-    stock_despacho = JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_despacho'], hmac = hmac).body)
-    hmac = generateHash('GET' + ENV['almacen_pulmon'])
-    stock_pulmon = JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_pulmon'], hmac = hmac).body)
+    return JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_despacho'], hmac = hmac).body)
+  end
 
-    return {'recepcion' => stock_recepcion, 'despacho' => stock_despacho, 'pulmon' => stock_pulmon}
+  def getStockPulmon
+    hmac = generateHash('GET' + ENV['almacen_pulmon'])
+    return JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_pulmon'], hmac = hmac).body)
+  end
+
+  def getStockPorAlmacen
+    return {'recepcion' => getStockRecepcion, 'despacho' => getStockDespacho, 'pulmon' => getStockPulmon}
   end
 
   def getAccount
     return get(ENV['general_system_url'] + 'banco/cuenta/' + ENV['id_cuenta_banco'])
+  end
+
+  def putTransaction(amount, destination)
+    uri = ENV['general_system_url'] + 'banco/trx'
+    data = {'monto' => amount.to_i, 'origen' => ENV['id_cuenta_banco'].to_s, 'destino' => destination.to_s}
+    put(uri, data= data).methods
+  end
+
+  def getStockFromOtherGroup(sku, groupNumber)
+    uri = 'http://integra'+ groupNumber.to_s + '.ing.puc.cl/api/consultar' + sku.to_s
+    return JSON.parse(get(uri).body)['stock']
+  rescue JSON::ParserError
+    return 0
   end
 end

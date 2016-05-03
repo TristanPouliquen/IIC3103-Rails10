@@ -1,6 +1,6 @@
 <div class="col-md-offset-10 col-md-offset-1">
   <h1>Producir productos</h1>
-  <p>Saldo: <%= @saldo %> CLP</p>
+  <p>Saldo: <%= number_with_delimiter(@saldo, delimiter: "." )%> CLP</p>
   <table class="table table-striped">
     <thead>
       <tr>
@@ -20,7 +20,14 @@
           <td><%= product["unitPrice"] %></td>
           <td><%= product["lot"] %></td>
           <td><%= product["productionTime"] %></td>
-          <td><a href="#" class="btn btn-small btn-primary" <% if !product['productionOK'] %>disabled<% end%> >Producir</a></td>
+          <td>
+            <%= form_tag "/admin/produce", method: "post" do %>
+              <input type="hidden" name="amount" value="<%= product['unitPrice']*product['lot'] %>">
+              <input type="hidden" name="sku" value="<%= product['sku'] %>">
+              <input type="hidden" name="lot" value="<%= product['lot'] %>">
+              <input type="submit" class="btn btn-small btn-primary" <% if !product['productionOK'] %>disabled<% end%> value="Producir"></a>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
