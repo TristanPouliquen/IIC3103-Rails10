@@ -11,8 +11,7 @@ class PagesController < BodegaController
   end
 
   def warehouses
-    response = getAlmacenes
-    almacenes = JSON.parse(response.body)
+    almacenes = getAlmacenes
     almacenes.each do |almacen|
       if almacen["recepcion"]
         @almacen_recepcion = almacen
