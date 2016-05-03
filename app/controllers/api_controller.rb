@@ -9,17 +9,21 @@ class ApiController < BodegaController
   end
 
   def getStockWithSku
+    render json: retrieveStockWithSku(params[:sku]), root: false
+  end
+
+  def retrieveStockWithSku(sku)
     hmac = generateHash('GET' + ENV['almacen_despacho'])
     stock = JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_despacho'], hmac = hmac).body)
-    @result = {'sku' => params[:sku].to_i, 'stock' => 0}
+    result = {'sku' => sku.to_i, 'stock' => 0}
 
     stock.each do |product|
-      if product['_id'].to_i == params[:sku].to_i
+      if product['_id'].to_i == sku.to_i
         @result['stock'] = product['total']
       end
     end
 
-    render json: @result, root: false
+    return result
   end
 
   def receivePurchaseOrder
