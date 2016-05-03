@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160503182738) do
+ActiveRecord::Schema.define(version: 20160503193213) do
 
   create_table "facturas", force: :cascade do |t|
     t.string   "idFactura",  limit: 255
