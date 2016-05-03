@@ -1,7 +1,7 @@
 require 'net/http'
 require 'json'
 
-class ApiController < ApplicationController
+class ApiController < BodegaController
   def getAccount
     response = get(ENV['general_system_url'] + 'banco/cuenta/' + ENV['id_cuenta_banco'])
 
