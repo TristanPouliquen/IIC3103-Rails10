@@ -75,7 +75,9 @@ class ApiController < BodegaController
     }
     purchaseOrder = getPurchaseOrder(idOc)
 
-    render json: purchaseOrder, root: false
+    if !purchaseOrder.empty?
+      stock = retrieveStockWithSku(purchaseOrder['sku'])
+    end
   end
 
   def processBill(idBill)
