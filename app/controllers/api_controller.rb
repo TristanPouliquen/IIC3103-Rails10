@@ -64,8 +64,18 @@ class ApiController < BodegaController
 
 # Functions to process the data and decide to accept or reject
   def processPurchaseOrder(idOc)
-    # TODO : Logic to accept or reject purchase order
-    return {'accepted' => true, 'message' => ''}
+    # Hash with sku => unitPrice
+    productPriceHash = {
+      3 => 1468,
+      9 => 1397,
+      29 => 1868,
+      35 => 1435,
+      41 => 1407,
+      54 => 2190,
+    }
+    purchaseOrder = getPurchaseOrder(idOc)
+
+    render json: purchaseOrder, root: false
   end
 
   def processBill(idBill)
