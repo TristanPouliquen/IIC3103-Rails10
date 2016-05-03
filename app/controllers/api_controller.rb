@@ -28,6 +28,7 @@ class ApiController < BodegaController
 
   def receivePurchaseOrder
     result = processPurchaseOrder(params[:idoc])
+
     if !result.accepted
       rejectPurchaseOrder(params[:idoc], result.message)
 
@@ -41,6 +42,7 @@ class ApiController < BodegaController
 
   def receiveBill
     result = processBill(params[:idfactura])
+
     if !result.accepted
       render json: {'aceptado' => false, 'idfactura' => params[:idfactura]}
     else
@@ -50,9 +52,14 @@ class ApiController < BodegaController
   end
 
   def receivePayment
-    result = processPayment(params[:idtrx])
+    result = processPayment(params[:idtrx], params[:idfactura])
 
-    #TODO : Dispatch the products
+    if !result.accepted
+      render json: {'aceptado' => false, 'idtrx' => params[:idtrx]}
+    else
+      # TODO : Dispatch  the products
+      render json: {'aceptado' => true, 'idtrx' => params[:idtrx]}
+    end
   end
 
 # Functions to process the data and decide to accept or reject
