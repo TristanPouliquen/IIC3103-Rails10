@@ -110,9 +110,19 @@ class ApiController < BodegaController
     return {'accepted' => true}
   end
 
-  def processPayment(idTransaction)
-    # TODO : Logic to accept or reject payment
-    return {'accepted' => true, 'message' => ''}
+  def processPayment(idTransaction, idFactura)
+      transaction = getPayment(idTransaction)
+      factura = getFactura(idFactura)
+
+      if !transaction.empty? and !factura.empty?
+        if transaction['monto'] != factura['valor_total']
+          return {'accepted' => false, 'message' => 'Monto de la transaccion incoherente'}
+        end
+      else
+        return {'accepted' => false, 'message' => 'Transaccion o factura no encontrada'}
+      end
+
+      return {'accepted' => true, 'message' => ''}
   end
 
 
