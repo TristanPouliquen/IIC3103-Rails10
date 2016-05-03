@@ -91,8 +91,23 @@ class ApiController < BodegaController
   end
 
   def processBill(idBill)
-    # TODO : Logic to accept or reject bill
-    return {'accepted' => true, 'message' => ''}
+    bill = getBill(idBill)
+
+    if !bill.empty?
+      Factura.create idFactura: idBill.to_s
+
+      purchaseOrder = getPurchaseOrder(bill['oc'])
+
+      if bill['valor_total'] != purchaseOrder['cantidad'] * purchaseOrder['precioUnitario']
+        return {'accepted' => false, 'message' => 'Valor de la factura incoherente'}
+      elsif bill['proveedor'] != ENV['id_grupo']
+        return {'accepted' => false, 'message' => 'Error de proveedor'}
+      end
+    else
+      return {'accepted' => false, 'message' => 'Factura no encontrada'}
+    end
+
+    return {'accepted' => true}
   end
 
   def processPayment(idTransaction)
