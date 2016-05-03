@@ -161,8 +161,11 @@ class ApiController < BodegaController
     # Call mare.ing.puc.cl/facturas
     response = put(ENV["general_system_url"] + "facturas", data= {"oc" => idOc})
 
-    # TODO : recuperate bill ID (idBill) and group number of origin (groupNumber)
-    post("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/facturas/recibir/" + idBill.to_s)
+    bill = JSON.parse(response.body)[0]
+    groupNumber = bill['cliente']
+    idBill = bill['id']
+
+    get("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/facturas/recibir/" + idBill.to_s)
 
     return response
   end
