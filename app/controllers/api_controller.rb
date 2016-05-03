@@ -85,6 +85,8 @@ class ApiController < BodegaController
       elsif purchaseOrder['precioUnitario'] >= productPriceHash[purchaseOrder['sku'].to_i]
         return {'accepted' => false, 'message' => 'Precio unitario demasiado bajo'}
       end
+
+      return {'accepted' => true}
     end
   end
 
