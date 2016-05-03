@@ -173,7 +173,10 @@ class ApiController < BodegaController
   def getBill(idBill)
     response = get(ENV["general_system_url"] + "facturas/" + idBill.to_s)
 
-    return response
+    bill = JSON.parse(response.body)
+    return bill
+  rescue JSON::ParserError
+    return {}
   end
   
   def payBill(idBill)
