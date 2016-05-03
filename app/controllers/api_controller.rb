@@ -82,6 +82,8 @@ class ApiController < BodegaController
 
       if purchaseOrder['cantidad'] > stock
         return {'accepted' => false, 'message' => 'No suficiente stock'}
+      elsif purchaseOrder['precioUnitario'] >= productPriceHash[purchaseOrder['sku'].to_i]
+        return {'accepted' => false, 'message' => 'Precio unitario demasiado bajo'}
       end
     end
   end
