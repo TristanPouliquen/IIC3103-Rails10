@@ -34,7 +34,7 @@ class ApplicationController < ActionController::Base
 
     request = Net::HTTP::Post.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
     if hmac
-      request["Authorization"] = "INTEGRACION grupo10:" + hmac
+      request["Authorization"] = hmac
     end
 
     request.set_form_data(data)
@@ -48,7 +48,7 @@ class ApplicationController < ActionController::Base
 
     request = Net::HTTP::Put.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
     if hmac
-      request["Authorization"] = "INTEGRACION grupo10:" + hmac
+      request["Authorization"] = hmac
     end
     request.set_form_data(data)
 
@@ -61,7 +61,7 @@ class ApplicationController < ActionController::Base
 
     request = New::HTTP::Delete.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
     if hmac
-      request["Authorization"] = "INTEGRACION grupo10:" + hmac
+      request["Authorization"] = hmac
     end
 
     return http.request(request)

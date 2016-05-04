@@ -56,14 +56,15 @@ class AdminController < BodegaController
   def produce
     production_account = JSON.parse(getCuentaFabrica.body)['cuentaId']
     transaction = putTransaction(params[:amount], production_account)
-    if !transaction.empty?
-      if producirStock(params[:sku], transaction['_id'], params[:lot])
+    if transaction.kind_of? Net::HTTPSuccess
+      response = producirStock(params[:sku], transaction['_id'], params[:lot])
+      if response.kind_of? Net::HTTPSuccess
         flash[:success] = "Produccion pedida correctamente!"
       else
-        flash[:error] = "Error. Produccion no pedida"
+        flash[:error] = "Production no pedida. Error: " + response.body.to_s
       end
     else
-      flash[:error] = "Error con la transaccion."
+      flash[:error] = "Error con la transaccion: " + transaction.body.to_s
     end
 
     redirect_to '/admin/produccion'
@@ -180,9 +181,7 @@ class AdminController < BodegaController
   def putTransaction(amount, destination)
     uri = ENV['general_system_url'] + 'banco/trx'
     data = {'monto' => amount.to_i, 'origen' => ENV['id_cuenta_banco'].to_s, 'destino' => destination.to_s}
-    return JSON.parse(put(uri, data= data).body)
-  rescue JSON::ParserError
-    return {}
+    return put(uri, data= data)
   end
 
   def getStockFromOtherGroup(sku, groupNumber)

@@ -53,7 +53,7 @@ class BodegaController < ApplicationController
   def producirStock(sku, trxId, cantidad)
     hmac = generateHash('PUT' + sku.to_s + cantidad.to_s + trxId.to_s)
     uri = ENV['bodega_system_url'] + 'fabrica/fabricar'
-    data= {"sku"=>sku, "trxId"=>trxId, "cantidad"=>cantidad}
+    data= {"sku"=>sku.to_s, "trxId"=>trxId, "cantidad"=>cantidad.to_i}
 
     return put(uri, data= data, hmac= hmac)
   end
