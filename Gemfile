@@ -8,6 +8,8 @@ gem 'figaro'
 
 gem 'net-sftp'
 
+gem 'whenever', :require => false
+
 # Add this if you're using rbenv
 # gem 'capistrano-rbenv', github: "capistrano/rbenv"
 
