@@ -1,4 +1,8 @@
-# config valid only for current version of Capistrano
+lock '3.4.1'
+
+require "whenever/capistrano"
+set :whenever_command, "bundle exec whenever"
+
 set :rbenv_ruby, '2.3.0'
 set :bundle_flags, '--quiet'
 
