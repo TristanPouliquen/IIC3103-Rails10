@@ -15,7 +15,7 @@
       <% list_oc.each do |orden| %>
         <tr>
           <td><%= orden['_id'] %></td>
-          <td><%= orden['created_at'].to_datetime.strftime("%F @ %T") %></td>
+          <td><%= orden['created_at'].to_datetime.in_time_zone('Santiago').strftime("%F @ %T") %></td>
           <td><%= orden['precioUnitario']*orden['cantidad'] %></td>
         </tr>
       <% end %>
