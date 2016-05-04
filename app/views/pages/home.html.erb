@@ -12,128 +12,18 @@
 <!-- Tab panes -->
 <div class="tab-content">
   <div role="tabpanel" class="tab-pane active fade in" id="creadas">
-    <table class="table table-striped">
-      <thead>
-        <tr class="text-center">
-          <th>ID</th>
-          <th>Fecha de creacion</th>
-          <th>Monto</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if @ordenes['creada'].empty? %>
-          <tr class="text-center">
-            <td class="text-muted" colspan="3">No ordenes de compra</td>
-          </tr>
-        <% end %>
-        <% @ordenes['creada'].each do |orden| %>
-          <tr>
-            <td><%= orden['id'] %></td>
-            <td><%= orden['fechaCreacion'] %></td>
-            <td><%= orden['monto'] %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <%= render partial: "shared/list_oc", :object => @ordenes['creada'] %>
   </div>
   <div role="tabpanel" class="tab-pane fade" id="aceptadas">
-    <table class="table table-striped">
-      <thead>
-        <tr class="text-center">
-          <th>ID</th>
-          <th>Fecha de creacion</th>
-          <th>Monto</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if @ordenes['aceptada'].empty? %>
-          <tr class="text-center">
-            <td class="text-muted" colspan="3">No ordenes de compra</td>
-          </tr>
-        <% end %>
-        <% @ordenes['aceptada'].each do |orden| %>
-          <tr>
-            <td><%= orden['id'] %></td>
-            <td><%= orden['fechaCreacion'] %></td>
-            <td><%= orden['monto'] %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <%= render partial: "shared/list_oc", :object => @ordenes['aceptada'] %>
   </div>
   <div role="tabpanel" class="tab-pane fade" id="rechazadas">
-    <table class="table table-striped">
-      <thead>
-        <tr class="text-center">
-          <th>ID</th>
-          <th>Fecha de creacion</th>
-          <th>Monto</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if @ordenes['rechazada'].empty? %>
-          <tr class="text-center">
-            <td class="text-muted" colspan="3">No ordenes de compra</td>
-          </tr>
-        <% end %>
-        <% @ordenes['rechazada'].each do |orden| %>
-          <tr>
-            <td><%= orden['id'] %></td>
-            <td><%= orden['fechaCreacion'] %></td>
-            <td><%= orden['monto'] %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <%= render partial: "shared/list_oc", :object => @ordenes['rechazada'] %>
   </div>
   <div role="tabpanel" class="tab-pane fade" id="finalizadas">
-    <table class="table table-striped">
-      <thead>
-        <tr class="text-center">
-          <th>ID</th>
-          <th>Fecha de creacion</th>
-          <th>Monto</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if @ordenes['finalizada'].empty? %>
-          <tr class="text-center">
-            <td class="text-muted" colspan="3">No ordenes de compra</td>
-          </tr>
-        <% end %>
-        <% @ordenes['finalizada'].each do |orden| %>
-          <tr>
-            <td><%= orden['id'] %></td>
-            <td><%= orden['fechaCreacion'] %></td>
-            <td><%= orden['monto'] %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <%= render partial: "shared/list_oc", :object => @ordenes['finalizada'] %>
   </div>
   <div role="tabpanel" class="tab-pane fade" id="anuladas">
-    <table class="table table-striped">
-      <thead>
-        <tr class="text-center">
-          <th>ID</th>
-          <th>Fecha de creacion</th>
-          <th>Monto</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if @ordenes['anulada'].empty? %>
-          <tr class="text-center">
-            <td class="text-muted" colspan="3">No ordenes de compra</td>
-          </tr>
-        <% end %>
-        <% @ordenes['anulada'].each do |orden| %>
-          <tr>
-            <td><%= orden['id'] %></td>
-            <td><%= orden['fechaCreacion'] %></td>
-            <td><%= orden['monto'] %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <%= render partial: "shared/list_oc", :object => @ordenes['anulada'] %>
   </div>
 </div>

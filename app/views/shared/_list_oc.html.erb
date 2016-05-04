@@ -1,0 +1,24 @@
+<table class="table table-striped">
+  <thead>
+    <tr class="text-center">
+      <th>ID</th>
+      <th>Fecha de creacion</th>
+      <th>Monto</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if list_oc.nil? or list_oc.empty? %>
+      <tr class="text-center">
+        <td class="text-muted" colspan="3">No ordenes de compra</td>
+      </tr>
+    <% else %>
+      <% list_oc.each do |orden| %>
+        <tr>
+          <td><%= orden['_id'] %></td>
+          <td><%= orden['created_at'].to_datetime.strftime("%F @ %T") %></td>
+          <td><%= orden['precioUnitario']*orden['cantidad'] %></td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

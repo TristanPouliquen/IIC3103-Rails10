@@ -5,7 +5,7 @@ class PagesController < BodegaController
     ordenesId = OrdenCompra.all
     @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}
     ordenesId.each do |orden|
-      orden = JSON.parse(get(ENV['general_system_url'] + 'oc/obtener/' + orden['idOc']).body)
+      orden = JSON.parse(get(ENV['general_system_url'] + 'oc/obtener/' + orden['idOC']).body)[0]
       @ordenes[orden['estado']] << orden
     end
   end
