@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160504031736) do
+ActiveRecord::Schema.define(version: 20160504133235) do
 
   create_table "facturas", force: :cascade do |t|
     t.string   "idFactura",  limit: 255
@@ -20,6 +20,12 @@ ActiveRecord::Schema.define(version: 20160504031736) do
   end
 
   add_index "facturas", ["idFactura"], name: "index_facturas_on_idFactura", unique: true, using: :btree
+
+  create_table "ftp_files", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "orden_compras", force: :cascade do |t|
     t.string   "idOC",       limit: 255

@@ -10,11 +10,14 @@ namespace :ftp do
 
     Net::SFTP.start(uri.host, ENV['usuario_ftp'], :password => ENV['clave_ftp']) do |sftp|
         sftp.dir.foreach('/pedidos') do |entry|
-            if entry.name =~ /(.*)\.xml$/
+            processed_files = FtpFile.pluck(:name)
+            name = entry.name
+            # We do not process files already processed.
+            if !processed_files.include? name and name =~ /(.*)\.xml$/
+                FtpFile.create name: name
                 file = sftp.download!('/pedidos/' + entry.name)
                 oc_info = Hash.from_xml(file)['order']
                 if  !records.include?(oc_info['id'])
-                    # oc_list[entry.name] = processPurchaseOrder(oc_info['id'])['accepted']
                     app.get '/api/oc/recibir/' + oc_info['id']
                 end
                 # Move order to 'procesados' directory when processed. Not possible until the 'procesados' folder is created
