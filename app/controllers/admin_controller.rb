@@ -62,10 +62,10 @@ class AdminController < BodegaController
       if response.kind_of? Net::HTTPSuccess
         flash[:success] = "Produccion pedida correctamente!"
       else
-        flash[:error] = "Production no pedida. Error: " + response.body.to_s
+        flash[:error] = "Production no pedida. Error: " + response.body.force_encoding('utf-8').to_s
       end
     else
-      flash[:error] = "Error con la transaccion: " + transaction.body.to_s
+      flash[:error] = "Error con la transaccion: " + transaction.body.force_encoding('utf-8').to_s
     end
 
     redirect_to '/admin/produccion'
