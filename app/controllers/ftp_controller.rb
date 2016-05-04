@@ -1,18 +1,23 @@
-require 'net/ftp'
-class FtpController < ApplicationController
+require 'net/sftp'
+class FtpController < ApiController
   def index
-    # ftp = Net::FTP.new
-    # ftp.connect("mare.ing.puc.cl",22)
-    # ftp.login("ENV['usuario_ftp']","ENV['clave_ftp']")
-    # files=ftp.chdir("/pedidos")
-    # files=ftp.nlst("*.txt")
-    # ftp.getbinaryfile('nif.rb-0.91.gz', 'nif.gz', 1024)
+    uri = URI.parse(ENV['general_system_url'])
+    oc_list = {}
+    records = OrdenCompra.pluck(:idOC)
 
-    # Net::FTP.open('mare.ing.puc.cl', ENV['usuario_ftp'], ENV['clave_ftp']) do |ftp|
-
-    # ftp.chdir('/pedidos')
-    # files = ftp.list
-    # puts "list out of directory:"
-    # puts files
+    Net::SFTP.start(uri.host, ENV['usuario_ftp'], :password => ENV['clave_ftp']) do |sftp|
+        sftp.dir.foreach('/pedidos') do |entry|
+            if entry.name =~ /(.*)\.xml$/
+                file = sftp.download!('/pedidos/' + entry.name)
+                oc_info = Hash.from_xml(file)['order']
+                if  !records.include?(oc_info['id'])
+                    oc_list[entry.name] = processPurchaseOrder(oc_info['id'])['accepted']
+                end
+                # Move order to 'procesados' directory when processed. Not possible until the 'procesados' folder is created
+                # sftp.rename('/pedidos/' + entry.name, '/procesados/' + entry.name)
+            end
+        end
+    end
+    render text: oc_list, root: false
   end
 end

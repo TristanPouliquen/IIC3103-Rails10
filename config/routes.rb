@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+
+  get 'ftp/list' => 'ftp#index'
+
   scope :path=> '/admin' do
     get 'index' => "admin#index"
     get 'produccion' => "admin#production"
