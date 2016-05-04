@@ -92,7 +92,7 @@ class AdminController < BodegaController
     if !purchaseOrder.empty?
       response = sendPurchaseOrder(purchaseOrder['_id'], params[:provider])
       if response.has_key?('aceptado')
-        OrdenCompra.create idOc: purchaseOrder['_id']
+        OrdenCompra.create idOC: purchaseOrder['_id']
         if response['aceptado']
           flash[:success] = 'Orden de compra enviada y aceptada'
         else
