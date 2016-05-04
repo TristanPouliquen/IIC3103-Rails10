@@ -9,8 +9,6 @@ set :bundle_flags, '--quiet'
 set :application, 'proecto10'
 set :repo_url, 'git@github.com:TristanPouliquen/IIC3103-Rails10.git'
 
-set :deploy_to, '/home/administrator/integra10-rails'
-
 set :linked_files, %w{config/database.yml config/secrets.yml config/application.yml}
 set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 
