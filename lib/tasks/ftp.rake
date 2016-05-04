@@ -3,6 +3,7 @@ require 'net/sftp'
 namespace :ftp do
   desc "TODO"
   task process: :environment do
+    app = ActionDispatch::Integration::Session.new(Rails.application)
     uri = URI.parse(ENV['general_system_url'])
     oc_list = {}
     records = OrdenCompra.pluck(:idOC)
@@ -13,7 +14,8 @@ namespace :ftp do
                 file = sftp.download!('/pedidos/' + entry.name)
                 oc_info = Hash.from_xml(file)['order']
                 if  !records.include?(oc_info['id'])
-                    oc_list[entry.name] = processPurchaseOrder(oc_info['id'])['accepted']
+                    # oc_list[entry.name] = processPurchaseOrder(oc_info['id'])['accepted']
+                    app.get '/api/oc/recibir/' + oc_info['id']
                 end
                 # Move order to 'procesados' directory when processed. Not possible until the 'procesados' folder is created
                 # sftp.rename('/pedidos/' + entry.name, '/procesados/' + entry.name)
