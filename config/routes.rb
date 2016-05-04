@@ -19,9 +19,9 @@ Rails.application.routes.draw do
 
   scope :path => '/api' do 
     get 'consultar/:sku' => 'api#getStockWithSku'
-    post 'oc/recibir/:idoc' => 'api#receivePurchaseOrder'
-    post 'facturas/recibir/:idfactura' => 'api#receiveBill'
-    post 'pagos/recibir/:idtrx' => 'api#receivePayment'
+    get 'oc/recibir/:idoc' => 'api#receivePurchaseOrder'
+    get 'facturas/recibir/:idfactura' => 'api#receiveBill'
+    get 'pagos/recibir/:idtrx' => 'api#receivePayment'
     get 'saldo' => 'api#getAccount' #to test the good connection to the general system service
   end
 
