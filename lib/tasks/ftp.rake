@@ -1,6 +1,8 @@
 require 'net/sftp'
-class FtpController < ApiController
-  def index
+
+namespace :ftp do
+  desc "TODO"
+  task process: :environment do
     uri = URI.parse(ENV['general_system_url'])
     oc_list = {}
     records = OrdenCompra.pluck(:idOC)
@@ -18,6 +20,6 @@ class FtpController < ApiController
             end
         end
     end
-    render text: oc_list, root: false
+    puts oc_list
   end
 end
