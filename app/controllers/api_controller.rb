@@ -29,33 +29,42 @@ class ApiController < BodegaController
   def receivePurchaseOrder
     result = processPurchaseOrder(params[:idoc])
 
-    if !result.accepted
-      rejectPurchaseOrder(params[:idoc], result.message)
-
-      render json: {'aceptado' => false, 'idoc' => params[:idoc]}
+    if !result['accepted']
+      response = rejectPurchaseOrder(params[:idoc], result['message'])
+      if response.kind_of? Net::HTTPSuccess
+        render json: {'aceptado' => false, 'idoc' => params[:idoc], 'msg' => result['message']}
+      else
+        render json: {'msg' => 'Error rechazando la orden:' + response.body.to_s}, status: :internal_server_error
+      end
     else
-      validatePurchaseOrder(params[:idoc])
-
-      render json: {'aceptado' => true, 'idoc' => params[:idoc]}
+      response = validatePurchaseOrder(params[:idoc])
+      if response.kind_of? Net::HTTPSuccess
+        render json: {'aceptado' => true, 'idoc' => params[:idoc]}
+      else
+        render json: {'msg' => 'Error validando la orden:' + response.body.to_s}, status: :internal_server_error
+      end
     end
   end
 
   def receiveBill
     result = processBill(params[:idfactura])
 
-    if !result.accepted
-      render json: {'validado' => false, 'idfactura' => params[:idfactura]}
+    if !result['accepted']
+      render json: {'validado' => false, 'idfactura' => params[:idfactura], 'msg' => result['message']}, status: result['status']
     else
-      payBill(params[:idfatura])
-      render json: {'validado' => true, 'idfactura' => params[:idfactura]}
+      response = payBill(params[:idfatura])
+      if response.kind_of? Net::HTTPSuccess
+        render json: {'validado' => true, 'idfactura' => params[:idfactura]}
+      else
+        render json: {'validado' => false, 'idfactura' => params[:idfactura], 'msg' => 'Error pagando la factura: ' + response.body.to_s}, status: :internal_server_error
+      end
     end
   end
 
   def receivePayment
     result = processPayment(params[:idtrx], params[:idfactura])
-
-    if !result.accepted
-      render json: {'validado' => false, 'idtrx' => params[:idtrx]}
+    if !result['accepted']
+      render json: {'validado' => false, 'idtrx' => params[:idtrx], 'msg' => result['message']}, status: result['status']
     else
       # TODO : Dispatch  the products
       render json: {'validado' => true, 'idtrx' => params[:idtrx]}
@@ -75,36 +84,43 @@ class ApiController < BodegaController
     }
     purchaseOrder = getPurchaseOrder(idOc)
 
-    if !purchaseOrder.empty?
-      OrdenCompra.create idOC: idOc.to_s
+    if purchaseOrder.nil? or purchaseOrder.empty?
+      return {'accepted' => false, 'message' => 'Orden de compra no encontrada', 'status' => :not_found}
+    else
+      record = OrdenCompra.find_by_idOC idOc.to_s
+      if !record.nil?
+        return {'accepted' => false, 'message' => 'Orden de compra ya procesada', 'status' => :bad_request}
+      else
+        OrdenCompra.create idOC: idOc.to_s
 
-      stock = retrieveStockWithSku(purchaseOrder['sku'])['stock']
+        stock = retrieveStockWithSku(purchaseOrder['sku'])['stock']
 
-      if purchaseOrder['cantidad'] > stock
-        return {'accepted' => false, 'message' => 'No suficiente stock'}
-      elsif purchaseOrder['precioUnitario'] >= productPriceHash[purchaseOrder['sku'].to_i]
-        return {'accepted' => false, 'message' => 'Precio unitario demasiado bajo'}
+        if purchaseOrder['cantidad'] > stock
+          return {'accepted' => false, 'message' => 'No suficiente stock'}
+        elsif purchaseOrder['precioUnitario'] >= productPriceHash[purchaseOrder['sku'].to_i]
+          return {'accepted' => false, 'message' => 'Precio unitario demasiado bajo'}
+        else
+          return {'accepted' => true}
+        end
       end
-
-      return {'accepted' => true}
     end
   end
 
   def processBill(idBill)
     bill = getBill(idBill)
 
-    if !bill.empty?
+    if bill.nil? or bill.empty?
+      return {'accepted' => false, 'message' => 'Factura no encontrada', 'status' => :not_found}
+    else
       Factura.create idFactura: idBill.to_s
 
       purchaseOrder = getPurchaseOrder(bill['oc'])
 
-      if bill['valor_total'] != purchaseOrder['cantidad'] * purchaseOrder['precioUnitario']
-        return {'accepted' => false, 'message' => 'Valor de la factura incoherente'}
+      if bill['total'] != purchaseOrder['cantidad'] * purchaseOrder['precioUnitario']
+        return {'accepted' => false, 'message' => 'Valor de la factura incoherente', 'status' => :bad_request}
       elsif bill['proveedor'] != ENV['id_grupo']
-        return {'accepted' => false, 'message' => 'Error de proveedor'}
+        return {'accepted' => false, 'message' => 'Error de proveedor', 'status' => :bad_request}
       end
-    else
-      return {'accepted' => false, 'message' => 'Factura no encontrada'}
     end
 
     return {'accepted' => true}
@@ -114,15 +130,15 @@ class ApiController < BodegaController
       transaction = getPayment(idTransaction)
       factura = getFactura(idFactura)
 
-      if !transaction.empty? and !factura.empty?
-        if transaction['monto'] != factura['valor_total']
-          return {'accepted' => false, 'message' => 'Monto de la transaccion incoherente'}
-        end
+      if transaction.nil? or factura.nil? or transaction.empty? or factura.empty?
+        return {'accepted' => false, 'message' => 'Transaccion o factura no encontrada', 'status' => :not_found}
       else
-        return {'accepted' => false, 'message' => 'Transaccion o factura no encontrada'}
+        if transaction['monto'] < factura['total']
+          return {'accepted' => false, 'message' => 'Monto de la transaccion incoherente', 'status' => :bad_request}
+        end
       end
 
-      return {'accepted' => true, 'message' => ''}
+      return {'accepted' => true}
   end
 
 
@@ -144,7 +160,7 @@ class ApiController < BodegaController
 
   def validatePurchaseOrder(idOc)
     # Call mare.ing.puc.cl/oc/recepcionar/idOc
-    response = post(ENV["general_system_url"] + "oc/recepcionar", {'id' => idOc.to_s})
+    response = post(ENV["general_system_url"] + "oc/recepcionar/" + idOc.to_s)
 
     return response
   end
@@ -152,7 +168,7 @@ class ApiController < BodegaController
   def rejectPurchaseOrder(idOc, message)
     # Call mare.ing.puc.cl/oc/rechazar/idOc
 
-    response = post(ENV["general_system_url"] + 'oc/rechazar',  {'id'=> idOc.to_s, 'rechazo' => message})
+    response = post(ENV["general_system_url"] + 'oc/rechazar/' + idOc.to_s, {'rechazo' => message})
 
     return response
   end
@@ -185,7 +201,7 @@ class ApiController < BodegaController
     # Call mare.ing.puc.cl/banco/trx with amount and account id in POST parameters
     response = post(ENV["general_system_url"] + "banco/trx", data)
 
-    if response.status = 200
+    if response.kind_of? Net::HTTPSuccess
       markBillAsPayed(idBill)
     end
 
