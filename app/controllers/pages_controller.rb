@@ -12,19 +12,20 @@ class PagesController < BodegaController
 
   def warehouses
     almacenes = getAlmacenes
+    @almacen = {}
     almacenes.each do |almacen|
       if almacen["recepcion"]
-        @almacen_recepcion = almacen
+        @almacen['recepcion'] = almacen
       elsif almacen["despacho"]
-        @almacen_despacho = almacen
+        @almacen['despacho'] = almacen
       elsif almacen["pulmon"]
-        @almacen_pulmon = almacen
+        @almacen['pulmon'] = almacen
       end
     end
 
-    @almacen_recepcion['porcentaje'] = ((@almacen_recepcion["usedSpace"].to_f / @almacen_recepcion["totalSpace"].to_f) * 100).round(2)
-    @almacen_despacho['porcentaje'] = ((@almacen_despacho["usedSpace"].to_f / @almacen_despacho["totalSpace"].to_f) * 100).round(2)
-    @almacen_pulmon['porcentaje'] = ((@almacen_pulmon["usedSpace"].to_f / @almacen_pulmon["totalSpace"].to_f) * 100).round(2)
+    @almacen['recepcion']['porcentaje'] = ((@almacen['recepcion']["usedSpace"].to_f / @almacen['recepcion']["totalSpace"].to_f) * 100).round(2)
+    @almacen['despacho']['porcentaje'] = ((@almacen['despacho']["usedSpace"].to_f / @almacen['despacho']["totalSpace"].to_f) * 100).round(2)
+    @almacen['pulmon']['porcentaje'] = ((@almacen['pulmon']["usedSpace"].to_f / @almacen['pulmon']["totalSpace"].to_f) * 100).round(2)
 
     @stock = getStockPorAlmacen
   end
