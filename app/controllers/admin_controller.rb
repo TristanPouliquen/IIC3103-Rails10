@@ -194,13 +194,19 @@ class AdminController < BodegaController
 
   def putPurchaseOrder(sku, group, quantity, unitPrice)
     uri = ENV['general_system_url'] + 'oc/crear'
+    groupIdHash = {
+      3 => '571262b8a980ba030058ab51',
+      4 => '571262b8a980ba030058ab52',
+      6 => '571262b8a980ba030058ab54',
+      12 => '571262b8a980ba030058ab5a'
+    }
 
     data = {
       'canal' => 'b2b',
       'cantidad' => quantity.to_i,
       'sku' => sku.to_s,
       'cliente' => ENV['id_grupo'].to_s,
-      'proveedor' => group.to_s,
+      'proveedor' => groupIdHash[group.to_i],
       'precioUnitario' => unitPrice.to_i,
       'fechaEntrega' => (Time.now + 60*60*24).to_i*1000,
       'notas' => "notas"
