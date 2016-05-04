@@ -109,9 +109,9 @@ class AdminController < BodegaController
   end
 
   def processProductionRequirements(products, saldo)
-    productsInRecepcion = JSON.parse(getSkusWithStock(ENV['almacen_recepcion']).body)
+    productsInDespacho = JSON.parse(getSkusWithStock(ENV['almacen_despacho']).body)
     productStockHash = {}
-    productsInRecepcion.each do |product|
+    productsInDespacho.each do |product|
       productStockHash[product['_id']] = product['total']
     end
 
