@@ -1,12 +1,12 @@
-lock '3.4.1'
-
 require "whenever/capistrano"
-set :whenever_command, "bundle exec whenever"
 
+lock '3.4.1'
 set :rbenv_ruby, '2.3.0'
 set :bundle_flags, '--quiet'
 
-set :application, 'proecto10'
+set :whenever_command, lambda {"cd #{release_path} && $HOME/.rbenv/bin/rbenv exec bundle exec whenever --update-crontab #{fetch(:application)}_#{fetch(:stage)}" }
+
+set :application, 'proyecto10'
 set :repo_url, 'git@github.com:TristanPouliquen/IIC3103-Rails10.git'
 
 set :linked_files, %w{config/database.yml config/secrets.yml config/application.yml}
