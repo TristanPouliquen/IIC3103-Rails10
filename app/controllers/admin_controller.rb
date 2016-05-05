@@ -92,10 +92,24 @@ class AdminController < BodegaController
 
     if !purchaseOrder.empty?
       response = sendPurchaseOrder(purchaseOrder['_id'], params[:provider])
+      OrdenCompra.create idOC: purchaseOrder['_id']
       if response.has_key?('aceptado')
-        OrdenCompra.create idOC: purchaseOrder['_id']
         if response['aceptado']
           flash[:success] = 'Orden de compra enviada y aceptada'
+          response = createBill(purchaseOrder['_id'])
+          if response.kind_of? Net::HTTPSuccess
+            body = JSON.parse(response.body).
+            if body['validado']
+              flash[:success] = 'Factura enviada y validada'
+              response = payBill(body['idfactura'])
+              if response.kind_of? Net::HTTPSuccess
+                flash[:success] = "Factura pagada"
+              else
+                flash[:error] = "Error pagando la factura: " + response.body.to_s
+              end
+            else
+              flash[:error] = 'Factura rechazada: ' + response.body.to_s
+            end
         else
           flash[:error] = 'Orden de compra rechazada'
         end
@@ -103,7 +117,7 @@ class AdminController < BodegaController
         flash[:error] = "Error en el envio de la orden de compra : #{response.to_s}"
       end
     else
-      flash[:error] = "Error en a creation de la orden de compra : #{response.to_s}"
+      flash[:error] = "Error en la creacion de la orden de compra : #{response.to_s}"
     end
 
     redirect_to '/admin/compras'

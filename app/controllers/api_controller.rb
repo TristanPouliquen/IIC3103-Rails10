@@ -34,14 +34,14 @@ class ApiController < BodegaController
       if response.kind_of? Net::HTTPSuccess
         render json: {'aceptado' => false, 'idoc' => params[:idoc], 'msg' => result['message']}
       else
-        render json: {'msg' => 'Error rechazando la orden:' + response.body.to_s}, status: :internal_server_error
+        render json: {'error' => 'Error rechazando la orden:' + response.body.to_s}, status: :internal_server_error
       end
     else
       response = validatePurchaseOrder(params[:idoc])
       if response.kind_of? Net::HTTPSuccess
         render json: {'aceptado' => true, 'idoc' => params[:idoc]}
       else
-        render json: {'msg' => 'Error validando la orden:' + response.body.to_s}, status: :internal_server_error
+        render json: {'error' => 'Error validando la orden:' + response.body.to_s}, status: :internal_server_error
       end
     end
   end
@@ -52,16 +52,16 @@ class ApiController < BodegaController
     if !result['accepted']
       response = rejectBill(params[:idfactura])
       if response.kind_of? Net::HTTPSuccess
-        render json: {'validado' => false, 'idfactura' => params[:idfactura], 'msg' => result['message']}, status: result['status']
+        render json: {'error' => result['message']}, status: result['status']
       else
-        render json: {'validado' => false, 'idfactura' => params[:idfactura], 'msg' => 'Error rechazando la factura'}, status: :internal_server_error
+        render json: {'error' => 'Error rechazando la factura'}, status: :internal_server_error
       end
     else
       response = payBill(params[:idfatura])
       if response.kind_of? Net::HTTPSuccess
         render json: {'validado' => true, 'idfactura' => params[:idfactura]}
       else
-        render json: {'validado' => false, 'idfactura' => params[:idfactura], 'msg' => 'Error pagando la factura: ' + response.body.to_s}, status: :internal_server_error
+        render json: {'error' => 'Error pagando la factura: ' + response.body.to_s}, status: :internal_server_error
       end
     end
   end
@@ -69,7 +69,7 @@ class ApiController < BodegaController
   def receivePayment
     result = processPayment(params[:idtrx], params[:idfactura])
     if !result['accepted']
-      render json: {'validado' => false, 'idtrx' => params[:idtrx], 'msg' => result['message']}, status: result['status']
+      render json: {'error' => result['message']}, status: result['status']
     else
       # TODO : Dispatch  the products
       render json: {'validado' => true, 'idtrx' => params[:idtrx]}
@@ -257,14 +257,32 @@ class ApiController < BodegaController
     response = post(ENV["general_system_url"] + "banco/trx", data)
 
     if response.kind_of? Net::HTTPSuccess
-      markBillAsPayed(idBill)
+      body = JSON.parse(response.body)
+      group_response = markBillAsPayed(idBill, body['_id'])
     end
 
-    return response
+    return group_response
   end
 
-  def markBillAsPayed(idBill)
+  def markBillAsPayed(idBill, idTrx)
     response = post(ENV['general_system_url'] + 'facturas/pay', {'id' => idBill})
+
+    groupIdHash = {
+      '571262b8a980ba030058ab4f' => 1,
+      '571262b8a980ba030058ab50' => 2,
+      '571262b8a980ba030058ab51' => 3,
+      '571262b8a980ba030058ab52' => 4,
+      '571262b8a980ba030058ab53' => 5,
+      '571262b8a980ba030058ab54' => 6,
+      '571262b8a980ba030058ab55' => 7,
+      '571262b8a980ba030058ab56' => 8,
+      '571262b8a980ba030058ab57' => 9,
+      '571262b8a980ba030058ab58' => 10,
+      '571262b8a980ba030058ab59' => 11,
+      '571262b8a980ba030058ab5a' => 12
+    }
+
+    get("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/pagos/recibir/" + idTrx.to_s + "?idfactura=" + idBill.to_s)
 
     return response
   end
