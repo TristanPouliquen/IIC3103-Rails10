@@ -3,20 +3,28 @@
     <tr class="text-center">
       <th>ID</th>
       <th>Fecha de creacion</th>
+      <th>Canal</th>
+      <th>Sku</th>
+      <th>Cantidad</th>
       <th>Monto</th>
+      <th>Cantidad despachada</th>
     </tr>
   </thead>
   <tbody>
     <% if list_oc.nil? or list_oc.empty? %>
       <tr class="text-center">
-        <td class="text-muted" colspan="3">No ordenes de compra</td>
+        <td class="text-muted" colspan="7">No ordenes de compra</td>
       </tr>
     <% else %>
       <% list_oc.each do |orden| %>
         <tr>
           <td><%= orden['_id'] %></td>
           <td><%= orden['created_at'].to_datetime.in_time_zone('Santiago').strftime("%F @ %T") %></td>
+          <td><%= orden['canal'] %></td>
+          <td><%= orden['sku'] %></td>
+          <td><%= orden['cantidad'] %></td>
           <td><%= orden['precioUnitario']*orden['cantidad'] %></td>
+          <td><%= orden['cantidadDespachada'] %></td>
         </tr>
       <% end %>
     <% end %>

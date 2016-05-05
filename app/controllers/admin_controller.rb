@@ -1,6 +1,6 @@
 require 'json'
 
-class AdminController < BodegaController
+class AdminController < ApiController
   before_filter :authenticate
 
   def authenticate
@@ -96,20 +96,6 @@ class AdminController < BodegaController
       if response.has_key?('aceptado')
         if response['aceptado']
           flash[:success] = 'Orden de compra enviada y aceptada'
-          response = createBill(purchaseOrder['_id'])
-          if response.kind_of? Net::HTTPSuccess
-            body = JSON.parse(response.body).
-            if body['validado']
-              flash[:success] = 'Factura enviada y validada'
-              response = payBill(body['idfactura'])
-              if response.kind_of? Net::HTTPSuccess
-                flash[:success] = "Factura pagada"
-              else
-                flash[:error] = "Error pagando la factura: " + response.body.to_s
-              end
-            else
-              flash[:error] = 'Factura rechazada: ' + response.body.to_s
-            end
         else
           flash[:error] = 'Orden de compra rechazada'
         end

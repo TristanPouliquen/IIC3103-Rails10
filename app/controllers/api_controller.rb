@@ -52,7 +52,7 @@ class ApiController < BodegaController
     if !result['accepted']
       response = rejectBill(params[:idfactura])
       if response.kind_of? Net::HTTPSuccess
-        render json: {'error' => result['message']}, status: result['status']
+        render json: {'validado' => false, 'idfactura' => params[:idfactura]}
       else
         render json: {'error' => 'Error rechazando la factura'}, status: :internal_server_error
       end
@@ -190,7 +190,7 @@ class ApiController < BodegaController
   
   def createBill(idOc)
     # Call mare.ing.puc.cl/facturas
-    response = put(ENV["general_system_url"] + "facturas", data= {"oc" => idOc})
+    response = put(ENV["general_system_url"] + "facturas/", data= {"oc" => idOc})
 
     bill = JSON.parse(response.body)[0]
     idBill = bill['id']
