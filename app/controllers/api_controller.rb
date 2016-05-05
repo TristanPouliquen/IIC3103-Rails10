@@ -193,7 +193,8 @@ class ApiController < BodegaController
     response = put(ENV["general_system_url"] + "facturas", data= {"oc" => idOc})
 
     bill = JSON.parse(response.body)[0]
-    groupNumber = groupIdHash[bill['cliente']] idBill = bill['id']
+    idBill = bill['id']
+    groupNumber = groupIdHash[bill['cliente']]
 
     groupIdHash = {
       '571262b8a980ba030058ab4f' => 1,
