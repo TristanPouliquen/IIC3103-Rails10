@@ -194,6 +194,7 @@ class ApiController < BodegaController
 
     bill = JSON.parse(response.body)[0]
     idBill = bill['id']
+
     groupNumber = groupIdHash[bill['cliente']]
 
     groupIdHash = {
