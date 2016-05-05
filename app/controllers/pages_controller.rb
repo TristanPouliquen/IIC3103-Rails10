@@ -2,7 +2,7 @@ require 'json'
 
 class PagesController < BodegaController
   def home
-    ordenesId = OrdenCompra.all
+    ordenesId = OrdenCompra.all.order(created_at: :desc)
     @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}
     ordenesId.each do |orden|
       orden = JSON.parse(get(ENV['general_system_url'] + 'oc/obtener/' + orden['idOC']).body)[0]
