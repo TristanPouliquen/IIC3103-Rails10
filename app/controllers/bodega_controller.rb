@@ -54,6 +54,8 @@ class BodegaController < ApplicationController
         originProductList.each do |product|
           moverStock(product['_id'], destinationId)
         end
+      end
+      amount -= 200
     end
 
     response = getStock(originId, sku, amount)
