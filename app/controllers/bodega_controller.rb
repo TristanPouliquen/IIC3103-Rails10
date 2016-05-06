@@ -1,4 +1,17 @@
 class BodegaController < ApplicationController
+
+  def move
+    originWarehouseId = ENV['almacen_' + params[:origin]]
+    destinationWarehouseId = ENV['almacen_' + params[:destination]]
+    amount = params[:amount].to_i
+    Thread.new do
+      moveBatch(amount,params[:sku], originWarehouseId, destinationWarehouseId)
+    end
+
+    flash[:info] = "Movimiento de los productos en procesamiento. Puede demorar unos minutos."
+    redirect_to '/admin/index'
+  end
+
   def getAlmacenes
     hmac= generateHash('GET')
     uri= ENV['bodega_system_url'] + 'almacenes'
@@ -10,7 +23,6 @@ class BodegaController < ApplicationController
   def getSkusWithStock(almacenId)
     hmac = generateHash('GET' + almacenId.to_s)
     uri = ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + almacenId.to_s
-
     return get(uri, hmac= hmac)
   end
 
@@ -22,9 +34,7 @@ class BodegaController < ApplicationController
       uri = ENV['bodega_system_url'] + 'stock?almacenId=' + almacenId.to_s + '&sku=' + sku.to_s + '&limit=' + limit.to_s
     end
 
-    return JSON.parse(get(uri, hmac= hmac).body)
-  rescue JSON::ParserError
-    return {}
+    return get(uri, hmac= hmac)
   end
 
   def moverStock(productoId, almacenId)
@@ -33,6 +43,26 @@ class BodegaController < ApplicationController
     data= {"productoId"=>productoId, "almacenId"=>almacenId}
 
     return post(uri, data= data , hmac= hmac )  
+  end
+
+  def moveBatch(amount, sku,originId, destinationId)
+    amount = amount
+    while amount > 200
+      response = getStock(originId, sku, amount)
+      if response.kind_of? Net::HTTPSuccess
+        originProductList = JSON.parse(response.body)
+        originProductList.each do |product|
+          moverStock(product['_id'], destinationId)
+        end
+    end
+
+    response = getStock(originId, sku, amount)
+    if response.kind_of? Net::HTTPSuccess
+      originProductList = JSON.parse(response.body)
+      originProductList.each do |product|
+        moverStock(product['_id'], destinationId)
+      end
+    end
   end
 
   def moverStockBodega(productoId, almacenId, oc, precio)

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     post 'produce' => "admin#produce"
     get 'compras' => "admin#purchases"
     post 'purchase' => 'admin#purchase'
+    post 'move' => 'bodega#move'
   end
 
   scope :path => '/bodega' do

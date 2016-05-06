@@ -24,7 +24,7 @@
             <input type="hidden" name="amount" value="<%= product['unitPrice']*product['lot'] %>">
             <input type="hidden" name="sku" value="<%= product['sku'] %>">
             <input type="hidden" name="lot" value="<%= product['lot'] %>">
-            <input type="submit" class="btn btn-small btn-primary" <% if !product['productionOK'] %>disabled<% end%> value="Producir por <%= product['unitPrice']*product['lot'] %> CLP"></a>
+            <input type="submit" class="btn btn-small btn-primary" <% if !product['productionOK'] %>disabled<% end%> value="Producir por <%= product['unitPrice']*product['lot'] %> CLP">
           <% end %>
         </td>
       </tr>
