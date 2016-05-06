@@ -4,10 +4,10 @@ class PagesController < BodegaController
   def home
     ordenesId = OrdenCompra.all.order(created_at: :desc)
     @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}
-    ordenesId.each do |orden|
-      orden = JSON.parse(get(ENV['general_system_url'] + 'oc/obtener/' + orden['idOC']).body)[0]
+    ordenesId.each do |ordenC|
+      orden = JSON.parse(get(ENV['general_system_url'] + 'oc/obtener/' + ordenC['idOC']).body)[0]
       if orden.nil?
-        OrdenCompra.where(idOC: orden['idOC']).destroy_all
+        OrdenCompra.where(idOC: ordenC['idOC']).destroy_all
       else
         @ordenes[orden['estado']] << orden
       end
