@@ -299,4 +299,8 @@ class ApiController < BodegaController
   rescue JSON::ParserError
     return {}
   end
+
+  def getDatos
+    render json: {'idGrupo' => '571262b8a980ba030058ab58', 'idCuentaBanco' => '571262c3a980ba030058ab63', 'idAlmacenRecepcion' => '571262aaa980ba030058a40c'}
+  end
 end
