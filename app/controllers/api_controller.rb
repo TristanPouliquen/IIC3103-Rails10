@@ -248,7 +248,7 @@ class ApiController < BodegaController
       '571262b8a980ba030058ab54' => '571262c3a980ba030058ab62',
       '571262b8a980ba030058ab55' => '571262c3a980ba030058ab60',
       '571262b8a980ba030058ab56' => '571262c3a980ba030058ab5e',
-      '571262b8a980ba030058ab57' => '',
+      '571262b8a980ba030058ab57' => '571262c3a980ba030058ab66',
       '571262b8a980ba030058ab58' => '571262c3a980ba030058ab63',
       '571262b8a980ba030058ab59' => '571262c3a980ba030058ab64',
       '571262b8a980ba030058ab5a' => '571262c3a980ba030068ab65'
@@ -298,5 +298,9 @@ class ApiController < BodegaController
     return transaction
   rescue JSON::ParserError
     return {}
+  end
+
+  def getDatos
+    render json: {'idGrupo' => '571262b8a980ba030058ab58', 'idCuentaBanco' => '571262c3a980ba030058ab63', 'idAlmacenRecepcion' => '571262aaa980ba030058a40c'}
   end
 end

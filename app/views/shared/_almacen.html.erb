@@ -10,7 +10,7 @@
     <h3>Productos en stock</h3>
       <ul>
         <% if @stock[almacen].empty? %>
-          <li>No productos en el almacen</li>
+          <li>No hay productos en el almacen</li>
         <% end %>
         <% @stock[almacen].each do |product| %>
           <li><%= product['_id']%> : <%= product['total'] %></li>
