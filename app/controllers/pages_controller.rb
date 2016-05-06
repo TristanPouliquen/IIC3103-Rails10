@@ -6,7 +6,11 @@ class PagesController < BodegaController
     @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}
     ordenesId.each do |orden|
       orden = JSON.parse(get(ENV['general_system_url'] + 'oc/obtener/' + orden['idOC']).body)[0]
-      @ordenes[orden['estado']] << orden
+      if orden.nil?
+        OrdenCompra.where(idOC: orden['idOC']).destroy_all
+      else
+        @ordenes[orden['estado']] << orden
+      end
     end
   end
 
