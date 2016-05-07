@@ -6,7 +6,7 @@ namespace :ftp do
     puts 'Processing FTP files'
     app = ActionDispatch::Integration::Session.new(Rails.application)
     uri = URI.parse(ENV['general_system_url'])
-
+    records = OrdenCompra.pluck(:idOC)
     Net::SFTP.start(uri.host, ENV['usuario_ftp'], :password => ENV['clave_ftp']) do |sftp|
         sftp.dir.foreach('/pedidos') do |entry|
             processed_files = FtpFile.pluck(:name)
