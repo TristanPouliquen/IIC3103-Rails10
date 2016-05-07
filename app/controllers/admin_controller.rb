@@ -119,7 +119,8 @@ class AdminController < ApiController
     products.each do |product|
       productionCost = product["unitPrice"] * product["lot"]
       if !product.has_key?("requires")
-        product["productionOK"] = productionCost < saldo ? true : false
+        # product["productionOK"] = productionCost saldo ? true : false
+        product["productionOK"] = true
       else
         sufficientIngredients = true
         product['requires'].each do |ingredient|
@@ -132,7 +133,8 @@ class AdminController < ApiController
             sufficientIngredients = false
           end
         end
-        product["productionOK"] = (sufficientIngredients and productionCost < saldo) ? true : false
+        # product["productionOK"] = (sufficientIngredients and productionCost < saldo) ? true : false
+        product["productionOK"] = sufficientIngredients ? true : false
       end
     end
     return products
@@ -143,7 +145,8 @@ class AdminController < ApiController
       if product['stock'] == nil
         product['stock'] = 0
       end
-      product['buyOK'] = (product['stock'] >= product['required'] and saldo > product['required']*product['unitPrice'])
+      # product['buyOK'] = (product['stock'] >= product['required'] and saldo > product['required']*product['unitPrice'])
+      product['buyOK'] = product['stock'] >= product['required']
     end
 
     return products
