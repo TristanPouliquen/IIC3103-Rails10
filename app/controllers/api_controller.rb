@@ -18,11 +18,10 @@ class ApiController < BodegaController
     result = {'sku' => sku.to_i, 'stock' => 0}
 
     stock.each do |product|
-      if product['_id'].to_i == sku.to_i
-        @result['stock'] = product['total']
+      if product['_id'].to_i == sku.to_i && product.has_key?('total')
+        result['stock'] = product['total']
       end
     end
-
     return result
   end
 
@@ -105,7 +104,7 @@ class ApiController < BodegaController
 
         if purchaseOrder['cantidad'] > stock
           return {'accepted' => false, 'message' => 'No suficiente stock'}
-        elsif purchaseOrder['precioUnitario'] >= productPriceHash[purchaseOrder['sku'].to_i]
+        elsif purchaseOrder['precioUnitario'] < productPriceHash[purchaseOrder['sku'].to_i]
           return {'accepted' => false, 'message' => 'Precio unitario demasiado bajo'}
         else
           return {'accepted' => true}
@@ -144,7 +143,7 @@ class ApiController < BodegaController
       end
       groupsBankAccountsHash = JSON.parse(ENV['groups_id_to_bank'])
       if groupsBankAccountsHash[factura['proveedor']] != transaction['origen']
-        return {'accepted' => false, 'message' => 'Proveedor y origen incoherentes: ' + factura['proveedor'] + ' / ' + transaction['origen'], 'status' => :bad_request}
+        return {'accepted' => false, 'message' => 'Proveedor y origen incoherentes', 'status' => :bad_request}
       end
       if transaction['destino'] != ENV['id_cuenta_banco']
         return {'accepted' => false, 'message' => 'Destino differente de nosotros', 'status' => :bad_request}
