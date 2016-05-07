@@ -104,6 +104,28 @@ class BodegaController < ApplicationController
     return delete(uri, hmac= hmac)
   end
 
+  def dispatchBatch(amount, sku, precio, idOc, direccion)
+    amount = amount
+    while amount > 200
+      response = getStock(ENV['almacen_despacho'], sku, 200)
+      if response.kind_of? Net::HTTPSuccess
+        originProductList = JSON.parse(response.body)
+        originProductList.each do |product|
+          despacharStock(product['_id'], direccion, precio, idOc)
+        end
+      end
+      amount -= 200
+    end
+
+    response = getStock(ENV['almacen_despacho'], sku, amount)
+    if response.kind_of? Net::HTTPSuccess
+      originProductList = JSON.parse(response.body)
+      originProductList.each do |product|
+        despacharStock(product['_id'], direccion, precio, idOc)
+      end
+    end
+  end
+
   def producirStock(sku, trxId, cantidad)
     hmac = generateHash('PUT' + sku.to_s + cantidad.to_s + trxId.to_s)
     uri = ENV['bodega_system_url'] + 'fabrica/fabricar'

@@ -27,6 +27,7 @@ class ApiController < BodegaController
 
   def receivePurchaseOrder
     result = processPurchaseOrder(params[:idoc])
+    purchaseOrder = getPurchaseOrder(params[:idoc])
 
     if !result['accepted']
       response = rejectPurchaseOrder(params[:idoc], result['message'])
@@ -39,6 +40,12 @@ class ApiController < BodegaController
       response = validatePurchaseOrder(params[:idoc])
       if response.kind_of? Net::HTTPSuccess
         createBill(params[:idoc])
+        if 'ftp' == purchaseOrder['canal']
+          Thread.new do
+            bill = JSON.parse(response.body)
+            dispatchProducts(params[:idoc], bill['_id'],'ftp')
+          end
+        end
         render json: {'aceptado' => true, 'idoc' => params[:idoc]}
       else
         render json: {'error' => 'Error validando la orden:' + response.body.to_s}, status: :internal_server_error
@@ -153,7 +160,7 @@ class ApiController < BodegaController
       return {'accepted' => true}
   end
 
-  def dispatchProducts(idOc, idBill)
+  def dispatchProducts(idOc, idBill, canal)
     purchaseOrder = getPurchaseOrder(idOc)
     groupsAlmacenIdHash = JSON.parse(ENV['groups_id_to_almacen'])
     groupsNumberHash = JSON.parse(ENV['groups_id_to_number'])
@@ -161,11 +168,13 @@ class ApiController < BodegaController
     sku = purchaseOrder['sku']
     unitPrice = purchaseOrder['precioUnitario']
     idOc = purchaseOrder['_id']
-    almacenId = groupsAlmacenIdHash[purchaseOrder['cliente']]
 
-    moveBatchBodega(amount, sku, unitPrice, idOc, almacenId)
-
-    get('http://integra' + groupsNumberHash[purchaseOrder['cliente']].to_s + '.ing.puc.cl/api/despachos/recibir/' + idBill)
+    if 'b2b' == canal
+      almacenId = groupsAlmacenIdHash[purchaseOrder['cliente']]
+      moveBatchBodega(amount, sku, unitPrice, idOc, almacenId)
+      get('http://integra' + groupsNumberHash[purchaseOrder['cliente']].to_s + '.ing.puc.cl/api/despachos/recibir/' + idBill)
+    else
+      dispatchBatch(amount, sku, unitPrice, idOc, 'Internacional')
   end
 
 # functions to access the API of the general system
@@ -208,9 +217,10 @@ class ApiController < BodegaController
 
     groupIdHash = JSON.parse(ENV['groups_id_to_number'])
 
-    groupNumber = groupIdHash[bill['cliente']]
-
-    get("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/facturas/recibir/" + idBill.to_s)
+    if groupIdHash.has_key?(bill['cliente'])
+      groupNumber = groupIdHash[bill['cliente']]
+      get("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/facturas/recibir/" + idBill.to_s)
+    end
 
     return response
   end
