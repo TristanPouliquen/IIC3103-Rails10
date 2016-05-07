@@ -175,6 +175,7 @@ class ApiController < BodegaController
       get('http://integra' + groupsNumberHash[purchaseOrder['cliente']].to_s + '.ing.puc.cl/api/despachos/recibir/' + idBill)
     else
       dispatchBatch(amount, sku, unitPrice, idOc, 'Internacional')
+    end
   end
 
 # functions to access the API of the general system
