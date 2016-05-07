@@ -2,9 +2,9 @@
 
 ##Documentation
 
-The project documentation is availabler [here](Documentacion Entrega 1.pdf). It contains the system's description, diagrams of the different processes implemented.
+The project documentation is available [here](Documentación Entrega 1.pdf). It contains the system's description, diagrams of the different processes implemented.
 
-The API documentation is available [here](http://integra10.ing.puc.cl/api/documentacion).
+The API documentation is available [here](http://integra10.ing.puc.cl/api/documentacion), with the different routes that we provide, the definitions of their parameters and information on what they return.
 
 ## Pre-requisites
 
