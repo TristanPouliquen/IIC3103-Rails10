@@ -38,6 +38,7 @@ class ApiController < BodegaController
     else
       response = validatePurchaseOrder(params[:idoc])
       if response.kind_of? Net::HTTPSuccess
+        createBill(params[:idoc])
         render json: {'aceptado' => true, 'idoc' => params[:idoc]}
       else
         render json: {'error' => 'Error validando la orden:' + response.body.to_s}, status: :internal_server_error
