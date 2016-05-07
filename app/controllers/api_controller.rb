@@ -50,14 +50,14 @@ class ApiController < BodegaController
     result = processBill(params[:idfactura])
 
     if !result['accepted']
-      response = rejectBill(params[:idfactura])
+      response = rejectBill(params[:idfactura], result['message'])
       if response.kind_of? Net::HTTPSuccess
-        render json: {'validado' => false, 'idfactura' => params[:idfactura]}
+        render json: {'validado' => false, 'idfactura' => params[:idfactura], 'message' => result['message']}
       else
         render json: {'error' => 'Error rechazando la factura'}, status: :internal_server_error
       end
     else
-      response = payBill(params[:idfatura])
+      response = payBill(params[:idfactura])
       if response.kind_of? Net::HTTPSuccess
         render json: {'validado' => true, 'idfactura' => params[:idfactura]}
       else
@@ -71,7 +71,10 @@ class ApiController < BodegaController
     if !result['accepted']
       render json: {'error' => result['message']}, status: result['status']
     else
-      # TODO : Dispatch  the products
+      bill = getBill(params[:idfactura])[0]
+      Thread.new do
+        dispatchProducts(bill['oc'], params[:idfactura])
+      end
       render json: {'validado' => true, 'idtrx' => params[:idtrx]}
     end
   end
@@ -112,33 +115,26 @@ class ApiController < BodegaController
   end
 
   def processBill(idBill)
-    bill = getBill(idBill)
+    bill = getBill(idBill)[0]
 
     if bill.nil? or bill.empty?
       return {'accepted' => false, 'message' => 'Factura no encontrada', 'status' => :not_found}
     else
-      Factura.create idFactura: idBill.to_s
-
       purchaseOrder = getPurchaseOrder(bill['oc'])
 
+      Factura.create idFactura: idBill.to_s
       if bill['total'] != purchaseOrder['cantidad'] * purchaseOrder['precioUnitario']
         return {'accepted' => false, 'message' => 'Valor de la factura incoherente', 'status' => :bad_request}
       elsif bill['proveedor'] != ENV['id_grupo']
         return {'accepted' => false, 'message' => 'Error de proveedor', 'status' => :bad_request}
       end
     end
-
-    response = payBill(idBill)
-    if response.kind_of? Net::HTTPSuccess
-      return {'accepted' => true}
-    else
-      return {'accepted' => false, 'message' => 'Error pagando la factura', 'status' => :internal_server_error}
-    end
+    return {'accepted' => true}
   end
 
-  def processPayment(idTransaction, idFactura)
-      transaction = getPayment(idTransaction)
-      factura = getFactura(idFactura)
+  def processPayment(idTransaction, idBill)
+      transaction = getPayment(idTransaction)[0]
+      factura = getBill(idBill)[0]
 
       if transaction.nil? or factura.nil? or transaction.empty? or factura.empty?
         return {'accepted' => false, 'message' => 'Transaccion o factura no encontrada', 'status' => :not_found}
@@ -146,8 +142,9 @@ class ApiController < BodegaController
       if transaction['monto'] < factura['total']
         return {'accepted' => false, 'message' => 'Monto de la transaccion incoherente', 'status' => :bad_request}
       end
-      if factura['proveedor'] != transaction['origen']
-        return {'accepted' => false, 'message' => 'Proveedor y origen incoherentes', 'status' => :bad_request}
+      groupsBankAccountsHash = JSON.parse(ENV['groups_id_to_bank'])
+      if groupsBankAccountsHash[factura['proveedor']] != transaction['origen']
+        return {'accepted' => false, 'message' => 'Proveedor y origen incoherentes: ' + factura['proveedor'] + ' / ' + transaction['origen'], 'status' => :bad_request}
       end
       if transaction['destino'] != ENV['id_cuenta_banco']
         return {'accepted' => false, 'message' => 'Destino differente de nosotros', 'status' => :bad_request}
@@ -156,6 +153,20 @@ class ApiController < BodegaController
       return {'accepted' => true}
   end
 
+  def dispatchProducts(idOc, idBill)
+    purchaseOrder = getPurchaseOrder(idOc)
+    groupsAlmacenIdHash = JSON.parse(ENV['groups_id_to_almacen'])
+    groupsNumberHash = JSON.parse(ENV['groups_id_to_number'])
+    amount = purchaseOrder['cantidad']
+    sku = purchaseOrder['sku']
+    unitPrice = purchaseOrder['precioUnitario']
+    idOc = purchaseOrder['_id']
+    almacenId = groupsAlmacenIdHash[purchaseOrder['cliente']]
+
+    moveBatchBodega(amount, sku, unitPrice, idOc, almacenId)
+
+    get('http://integra' + groupsNumberHash[purchaseOrder['cliente']].to_s + '.ing.puc.cl/api/despachos/recibir/' + idBill)
+  end
 
 # functions to access the API of the general system
   def getPurchaseOrder(idOc)
@@ -195,22 +206,9 @@ class ApiController < BodegaController
     bill = JSON.parse(response.body)[0]
     idBill = bill['id']
 
-    groupNumber = groupIdHash[bill['cliente']]
+    groupIdHash = JSON.parse(ENV['groups_id_to_number'])
 
-    groupIdHash = {
-      '571262b8a980ba030058ab4f' => 1,
-      '571262b8a980ba030058ab50' => 2,
-      '571262b8a980ba030058ab51' => 3,
-      '571262b8a980ba030058ab52' => 4,
-      '571262b8a980ba030058ab53' => 5,
-      '571262b8a980ba030058ab54' => 6,
-      '571262b8a980ba030058ab55' => 7,
-      '571262b8a980ba030058ab56' => 8,
-      '571262b8a980ba030058ab57' => 9,
-      '571262b8a980ba030058ab58' => 10,
-      '571262b8a980ba030058ab59' => 11,
-      '571262b8a980ba030058ab5a' => 12
-    }
+    groupNumber = groupIdHash[bill['cliente']]
 
     get("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/facturas/recibir/" + idBill.to_s)
 
@@ -239,50 +237,25 @@ class ApiController < BodegaController
   end
   
   def payBill(idBill)
-    groupIdToAccountId = {
-      '571262b8a980ba030058ab4f' => '571262c3a980ba030058ab5b',
-      '571262b8a980ba030058ab50' => '571262c3a980ba030058ab5c',
-      '571262b8a980ba030058ab51' => '571262c3a980ba030058ab5d',
-      '571262b8a980ba030058ab52' => '571262c3a980ba030058ab5f',
-      '571262b8a980ba030058ab53' => '571262c3a980ba030058ab61',
-      '571262b8a980ba030058ab54' => '571262c3a980ba030058ab62',
-      '571262b8a980ba030058ab55' => '571262c3a980ba030058ab60',
-      '571262b8a980ba030058ab56' => '571262c3a980ba030058ab5e',
-      '571262b8a980ba030058ab57' => '571262c3a980ba030058ab66',
-      '571262b8a980ba030058ab58' => '571262c3a980ba030058ab63',
-      '571262b8a980ba030058ab59' => '571262c3a980ba030058ab64',
-      '571262b8a980ba030058ab5a' => '571262c3a980ba030068ab65'
-    }
-    bill = getBill(idBill)
+    groupIdToAccountId = JSON.parse(ENV['groups_id_to_bank'])
+
+    bill = getBill(idBill)[0]
     data = {'monto' => bill['total'], 'origen' => ENV['id_cuenta_banco'], 'destino' => groupIdToAccountId[bill['proveedor']]}
     # Call mare.ing.puc.cl/banco/trx with amount and account id in POST parameters
-    response = post(ENV["general_system_url"] + "banco/trx", data)
+    response = put(ENV["general_system_url"] + "banco/trx", data)
 
     if response.kind_of? Net::HTTPSuccess
       body = JSON.parse(response.body)
-      group_response = markBillAsPayed(idBill, body['_id'])
+      group_response = markBillAsPayed(idBill, body['_id'], bill['cliente'])
     end
-
     return group_response
   end
 
-  def markBillAsPayed(idBill, idTrx)
+  def markBillAsPayed(idBill, idTrx, clienteId)
     response = post(ENV['general_system_url'] + 'facturas/pay', {'id' => idBill})
 
-    groupIdHash = {
-      '571262b8a980ba030058ab4f' => 1,
-      '571262b8a980ba030058ab50' => 2,
-      '571262b8a980ba030058ab51' => 3,
-      '571262b8a980ba030058ab52' => 4,
-      '571262b8a980ba030058ab53' => 5,
-      '571262b8a980ba030058ab54' => 6,
-      '571262b8a980ba030058ab55' => 7,
-      '571262b8a980ba030058ab56' => 8,
-      '571262b8a980ba030058ab57' => 9,
-      '571262b8a980ba030058ab58' => 10,
-      '571262b8a980ba030058ab59' => 11,
-      '571262b8a980ba030058ab5a' => 12
-    }
+    groupIdHash = JSON.parse(ENV['groups_id_to_number'])
+    groupNumber = groupIdHash[clienteId]
 
     get("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/pagos/recibir/" + idTrx.to_s + "?idfactura=" + idBill.to_s)
 
@@ -301,6 +274,6 @@ class ApiController < BodegaController
   end
 
   def getDatos
-    render json: {'idGrupo' => '571262b8a980ba030058ab58', 'idCuentaBanco' => '571262c3a980ba030058ab63', 'idAlmacenRecepcion' => '571262aaa980ba030058a40c'}
+    render json: {'idGrupo' => ENV['id_grupo'], 'idCuentaBanco' => ENV['id_cuenta_banco'], 'idAlmacenRecepcion' => ENV['almacen_recepcion']}
   end
 end

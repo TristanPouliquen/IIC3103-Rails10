@@ -48,7 +48,7 @@ class BodegaController < ApplicationController
   def moveBatch(amount, sku,originId, destinationId)
     amount = amount
     while amount > 200
-      response = getStock(originId, sku, amount)
+      response = getStock(originId, sku, 200)
       if response.kind_of? Net::HTTPSuccess
         originProductList = JSON.parse(response.body)
         originProductList.each do |product|
@@ -74,6 +74,28 @@ class BodegaController < ApplicationController
 
     return post(uri, data= data, hmac= hmac)
   end
+
+  def moveBatchBodega(amount, sku, precio, idOc, almacenId)
+    amount = amount
+    while amount > 200
+      response = getStock(ENV['almacen_despacho'], sku, 200)
+      if response.kind_of? Net::HTTPSuccess
+        originProductList = JSON.parse(response.body)
+        originProductList.each do |product|
+          moverStockBodega(product['_id'], almacenId, idOc, precio)
+        end
+      end
+    end
+
+    response = getStock(ENV['almacen_despacho'], sku, amount)
+    if response.kind_of? Net::HTTPSuccess
+      originProductList = JSON.parse(response.body)
+      originProductList.each do |product|
+        moverStockBodega(product['_id'], almacenId, idOc, precio)
+      end
+    end
+  end
+
 
   def despacharStock(productoId, direccion, precio, oc)
     hmac = generateHash('DELETE'+ productoId.to_s + direccion.to_s + precio.to_s + oc.to_s)
