@@ -3,7 +3,7 @@ require 'net/sftp'
 namespace :ftp do
   desc "TODO"
   task process: :environment do
-    puts 'Processing FTP files'
+    puts Time.now.in_time_zone('Santiago').to_s + ' : Processing FTP files'
     app = ActionDispatch::Integration::Session.new(Rails.application)
     uri = URI.parse(ENV['general_system_url'])
     records = OrdenCompra.pluck(:idOC)
@@ -22,6 +22,6 @@ namespace :ftp do
             end
         end
     end
-    puts 'Processed new FTP files'
+    puts Time.now.in_time_zone('Santiago').to_s + ' : Processed new FTP files'
   end
 end
