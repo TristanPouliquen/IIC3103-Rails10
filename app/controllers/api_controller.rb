@@ -203,7 +203,7 @@ class ApiController < BodegaController
     # Call mare.ing.puc.cl/facturas
     response = put(ENV["general_system_url"] + "facturas/", data= {"oc" => idOc})
 
-    bill = JSON.parse(response.body)[0]
+    bill = JSON.parse(response.body)
     idBill = bill['_id']
 
     groupIdHash = JSON.parse(ENV['groups_id_to_number'])
