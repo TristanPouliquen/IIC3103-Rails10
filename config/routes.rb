@@ -21,7 +21,7 @@ Rails.application.routes.draw do
   scope :path => '/api' do
     get 'consultar/:sku' => 'api#getStockWithSku'
     get 'oc/recibir/:idoc' => 'api#receivePurchaseOrder'
-    get '/oc/recibir/internacional/:idoc' => 'api#receiveInternationalPurchaseOrder'
+    get '/oc/recibir/internacional/:idoc' => 'api#receivePurchaseOrder'
     get 'facturas/recibir/:idfactura' => 'api#receiveBill'
     get 'pagos/recibir/:idtrx' => 'api#receivePayment'
     get 'datos' => 'api#getDatos'
