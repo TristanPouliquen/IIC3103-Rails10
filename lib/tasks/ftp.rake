@@ -17,6 +17,7 @@ namespace :ftp do
                 file = sftp.download!('/pedidos/' + entry.name)
                 oc_info = Hash.from_xml(file)['order']
                 if  !records.include?(oc_info['id'])
+                    puts 'Process OC with id ' + oc_info['id']
                     app.get '/api/oc/internacional/recibir/' + oc_info['id']
                 end
             end
