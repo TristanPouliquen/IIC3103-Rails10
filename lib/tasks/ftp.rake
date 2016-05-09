@@ -18,7 +18,7 @@ namespace :ftp do
                 file = sftp.download!('/pedidos/' + entry.name)
                 oc_info = Hash.from_xml(file)['order']
                 if  !records.include?(oc_info['id'])
-                    response = Net::HTTP.get(URI.parse(ENV['group_system_url'].host, '/api/oc/recibir/internacional/' + oc_info['id'])
+                    response = Net::HTTP.get(URI.parse(ENV['group_system_url']).host, '/api/oc/recibir/internacional/' + oc_info['id'])
                     puts oc_info['id'] + ' : ' + response.code
                 end
             end
