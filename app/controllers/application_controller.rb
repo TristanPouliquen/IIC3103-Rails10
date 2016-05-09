@@ -55,11 +55,12 @@ class ApplicationController < ActionController::Base
     return http.request(request)
   end
 
-  def delete(uri, hmac=nil)
+  def delete(uri, data={}, hmac=nil)
     uri = URI.parse(uri)
-    http = Net.HTTP(uri.host, uri.port)
+    http = Net::HTTP.new(uri.host, uri.port)
 
-    request = New::HTTP::Delete.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
+    request = Net::HTTP::Delete.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
+    request.set_form_data(data)
     if hmac
       request["Authorization"] = hmac
     end

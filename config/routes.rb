@@ -18,7 +18,7 @@ Rails.application.routes.draw do
     post 'moveStock' => 'warehouse#moveStock'
   end
 
-  scope :path => '/api' do 
+  scope :path => '/api' do
     get 'consultar/:sku' => 'api#getStockWithSku'
     get 'oc/recibir/:idoc' => 'api#receivePurchaseOrder'
     get '/oc/recibir/internacional/:idoc' => 'api#receiveInternationalPurchaseOrder'

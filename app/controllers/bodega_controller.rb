@@ -96,12 +96,11 @@ class BodegaController < ApplicationController
     end
   end
 
-
   def despacharStock(productoId, direccion, precio, oc)
     hmac = generateHash('DELETE'+ productoId.to_s + direccion.to_s + precio.to_s + oc.to_s)
-    uri  = ENV['bodega_system_url'] + 'stock?productoId=' + productoId.to_s + '&direccion=' + direccion.to_s + '&precio=' + precio.to_s + '&oc=' + oc.to_s
-
-    return delete(uri, hmac= hmac)
+    uri  = ENV['bodega_system_url'] + 'stock'
+    data = {'productoId' => productoId, 'direccion' => direccion, 'precio' => precio, 'oc' => oc}
+    return delete(uri,data=data, hmac= hmac)
   end
 
   def dispatchBatch(amount, sku, precio, idOc, direccion)
