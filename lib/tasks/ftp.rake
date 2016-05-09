@@ -11,7 +11,6 @@ namespace :ftp do
         sftp.dir.foreach('/pedidos') do |entry|
             processed_files = FtpFile.pluck(:name)
             name = entry.name
-            puts 'Process file named: ' + name
             # We do not process files already processed.
             if !processed_files.include? name and name =~ /(.*)\.xml$/
                 FtpFile.create name: name
@@ -19,7 +18,7 @@ namespace :ftp do
                 oc_info = Hash.from_xml(file)['order']
                 if  !records.include?(oc_info['id'])
                     response = Net::HTTP.get(URI.parse(ENV['group_system_url']).host, '/api/oc/recibir/internacional/' + oc_info['id'])
-                    puts oc_info['id'] + ' : ' + response.code
+                    puts 'Processed file ' + name + ' for OC id ' + oc_info['id']
                 end
             end
         end
