@@ -90,12 +90,12 @@ class ApiController < BodegaController
   def processPurchaseOrder(idOc)
     # Hash with sku => unitPrice
     productPriceHash = {
-      3 => 1468,
-      9 => 1397,
-      29 => 1868,
-      35 => 1435,
-      41 => 1407,
-      54 => 2190
+      3 => 1805,
+      9 => 1704,
+      29 => 4865,
+      35 => 3351,
+      41 => 3148,
+      54 => 6314
     }
     purchaseOrder = getPurchaseOrder(idOc)
 

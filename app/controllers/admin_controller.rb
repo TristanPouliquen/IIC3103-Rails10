@@ -75,13 +75,13 @@ class AdminController < ApiController
   def purchases
     account = getAccount
     @saldo = account["saldo"]
-    wool = {'sku' => 31, 'name' => 'Lana', 'unitPrice' => 1431, 'required' => 368, 'group' => 3,
+    wool = {'sku' => 31, 'name' => 'Lana', 'unitPrice' => 1763, 'required' => 368, 'group' => 3,
      'stock' => getStockFromOtherGroup(31,3),}
-    agave = {'sku' => 44, 'name' => 'Agave', 'unitPrice' => 1091, 'required' => 430, 'group' => 4,
+    agave = {'sku' => 44, 'name' => 'Agave', 'unitPrice' => 1254, 'required' => 430, 'group' => 4,
      'stock' => getStockFromOtherGroup(44,4),}
-    milk = {'sku' => 7, 'name' => 'Leche', 'unitPrice' => 941, 'required' => 2000, 'group' => 12,
+    milk = {'sku' => 7, 'name' => 'Leche', 'unitPrice' => 1307, 'required' => 2000, 'group' => 12,
      'stock' => getStockFromOtherGroup(7,12),}
-    salt = {'sku' => 26, 'name' => 'Sal', 'unitPrice' => 753, 'required' => 153, 'group' => 6,
+    salt = {'sku' => 26, 'name' => 'Sal', 'unitPrice' => 926, 'required' => 153, 'group' => 6,
      'stock' => getStockFromOtherGroup(26,6),}
 
     @products = processBuyRequirements([wool, agave, milk, salt], @saldo)
