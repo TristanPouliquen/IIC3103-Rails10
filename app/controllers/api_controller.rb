@@ -39,10 +39,10 @@ class ApiController < BodegaController
     else
       response = validatePurchaseOrder(params[:idoc])
       if response.kind_of? Net::HTTPSuccess
-        createBill(params[:idoc])
+        bill_response = createBill(params[:idoc])
         if 'ftp' == purchaseOrder['canal']
+          bill = JSON.parse(bill_response.body)
           Thread.new do
-            bill = JSON.parse(response.body)
             dispatchProducts(params[:idoc], bill['_id'],'ftp')
           end
         end
@@ -79,8 +79,9 @@ class ApiController < BodegaController
       render json: {'error' => result['message']}, status: result['status']
     else
       bill = getBill(params[:idfactura])[0]
+      purchaseOrder = getPurchaseOrder(bill['oc'])
       Thread.new do
-        dispatchProducts(bill['oc'], params[:idfactura])
+        dispatchProducts(bill['oc'], params[:idfactura], purchaseOrder['canal'])
       end
       render json: {'validado' => true, 'idtrx' => params[:idtrx]}
     end

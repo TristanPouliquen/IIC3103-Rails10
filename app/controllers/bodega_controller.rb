@@ -104,7 +104,7 @@ class BodegaController < ApplicationController
   end
 
   def dispatchBatch(amount, sku, precio, idOc, direccion)
-    amount = amount
+    amount = amount.to_i
     while amount > 200
       response = getStock(ENV['almacen_despacho'], sku, 200)
       if response.kind_of? Net::HTTPSuccess
