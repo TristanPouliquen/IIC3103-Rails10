@@ -2,7 +2,7 @@
 
 <h2>Informaciones generals</h2>
 <ul>
-  <li><b>Saldo:</b> <%= @account['saldo'] %></li>
+  <li><b>Saldo:</b> <%= number_to_currency(@account['saldo'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u") %></li>
   <li><b>Transacciones:</b> <%= @transactions['total'] %></li>
 </ul>
 <h2>Transacciones</h2>

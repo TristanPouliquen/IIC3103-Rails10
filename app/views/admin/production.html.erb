@@ -1,5 +1,5 @@
 <h1>Producir productos</h1>
-<p>Saldo: <%= number_with_delimiter(@saldo, delimiter: "." )%> CLP</p>
+<p>Saldo: <%= number_to_currency(@saldo, unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u") %></p>
 <table class="table table-striped">
   <thead>
     <tr>
