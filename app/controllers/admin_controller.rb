@@ -56,10 +56,10 @@ class AdminController < ApiController
 
   def produce
     production_account = JSON.parse(getCuentaFabrica.body)['cuentaId']
-    transaction = putTransaction(params[:amount], production_account)
+    transaction = putTransaction(params[:amount].to_i*params[:lot].to_i*params[:quantity].to_i, production_account)
     if transaction.kind_of? Net::HTTPSuccess
       transaction = JSON.parse(transaction.body)
-      response = producirStock(params[:sku], transaction['_id'], params[:lot])
+      response = producirStock(params[:sku], transaction['_id'], params[:lot].to_i*params[:quantity].to_i)
       if response.kind_of? Net::HTTPSuccess
         flash[:success] = "Produccion pedida correctamente!"
       else
