@@ -18,6 +18,8 @@
     </tr>
   </thead>
   <tbody>
+    <% credito =0 %>
+    <% debito = 0 %>
     <% @transactions['data'].reverse!().each do |transaction|%>
     <tr>
       <td><%= transaction['_id'] %></td>
@@ -26,15 +28,27 @@
       <td><%= transaction['destino'] %></td>
       <td>
         <% if transaction['destino'] == @account['_id'] %>
-          + <%= transaction['monto'] %>
+          + <%= number_to_currency(transaction['monto'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u", precision: 0) %>
+          <% credito += transaction['monto'] %>
         <% end %>
       </td>
       <td>
         <% if transaction['origen'] == @account['_id'] %>
-          - <%= transaction['monto'] %>
+          - <%= number_to_currency(transaction['monto'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u", precision: 0) %>
+          <% debito += transaction['monto'] %>
         <% end %>
       </td>
     </tr>
     <% end %>
   </tbody>
+  <tfoot>
+    <tr>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>+ <%= number_to_currency(credito, unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u", precision: 0) %></th>
+      <th>- <%= number_to_currency(debito, unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u", precision: 0) %></th>
+    </tr>
+  </tfoot>
 </table>
