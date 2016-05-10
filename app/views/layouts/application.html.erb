@@ -60,6 +60,12 @@
               <% end %>
             ><a href="/admin/compras">Compras</a>
             </li>
+            <li
+              <% if current_page?(:controller => 'admin', :action => 'account') %>
+                class="active"
+              <% end %>
+            ><a href="/admin/cartola">Cartola</a>
+            </li>
           <% end %>
         </ul>
         <ul class="nav navbar-nav navbar-right">

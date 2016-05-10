@@ -1,0 +1,40 @@
+<h1>Cartola de la cuenta <%= @account['_id'] %></h1>
+
+<h2>Informaciones generals</h2>
+<ul>
+  <li><b>Saldo:</b> <%= @account['saldo'] %></li>
+  <li><b>Transacciones:</b> <%= @transactions['total'] %></li>
+</ul>
+<h2>Transacciones</h2>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Fecha</th>
+      <th>Origen</th>
+      <th>Destino</th>
+      <th>Credito</th>
+      <th>Debito</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @transactions['data'].reverse!().each do |transaction|%>
+    <tr>
+      <td><%= transaction['_id'] %></td>
+      <td><%= transaction['created_at'].to_datetime.in_time_zone('Santiago').strftime("%F @ %T") %></td>
+      <td><%= transaction['origen'] %></td>
+      <td><%= transaction['destino'] %></td>
+      <td>
+        <% if transaction['destino'] == @account['_id'] %>
+          + <%= transaction['monto'] %>
+        <% end %>
+      </td>
+      <td>
+        <% if transaction['origen'] == @account['_id'] %>
+          - <%= transaction['monto'] %>
+        <% end %>
+      </td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>

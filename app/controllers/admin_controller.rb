@@ -29,6 +29,11 @@ class AdminController < ApiController
     @stock = getStockPorAlmacen
   end
 
+  def account
+    @account = getAccount
+    @transactions = getTransactions
+  end
+
   def production
     account = getAccount
     @saldo = account["saldo"]
@@ -181,6 +186,15 @@ class AdminController < ApiController
     return JSON.parse(get(ENV['general_system_url'] + 'banco/cuenta/' + ENV['id_cuenta_banco']).body)[0]
   rescue JSON::ParserError
     return {}
+  end
+
+  def getTransactions
+    uri = ENV['general_system_url'] + 'banco/cartola'
+    data = {'id' => ENV['id_cuenta_banco'], 'fechaInicio' =>  1460313413000, 'fechaFin' => Time.now.to_i*1000}
+
+    response = JSON.parse(post(uri, data=data).body)
+  rescue JSON::ParserError
+    return {'data' => [], 'total' => 0}
   end
 
   def putTransaction(amount, destination)
