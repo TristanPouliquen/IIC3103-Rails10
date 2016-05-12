@@ -40,7 +40,9 @@ class AdminController < ApiController
 
     newTransactions['data'].each do |transaction|
       date = transaction['created_at'].to_datetime.in_time_zone('Santiago')
-      Transaction.create(idTrx: transaction['_id'], origen: transaction['origen'], destino: transaction['destino'], monto: transaction['monto'], fecha: date)
+      if Transaction.where(idTrx: transaction['_id']).empty?
+        Transaction.create(idTrx: transaction['_id'], origen: transaction['origen'], destino: transaction['destino'], monto: transaction['monto'], fecha: date)
+      end
     end
 
     @account = getAccount
