@@ -30,8 +30,21 @@ class AdminController < ApiController
   end
 
   def account
+    lastRegisteredTransaction = Transaction.order(fecha: :desc).limit(1)
+    if !lastRegisteredTransaction[0].nil?
+      date = lastRegisteredTransaction[0]['fecha'].to_time.to_i * 1000
+    else
+      date = 1459998642000
+    end
+    newTransactions = getTransactions(date + 1)
+
+    newTransactions['data'].each do |transaction|
+      date = transaction['created_at'].to_datetime.in_time_zone('Santiago')
+      Transaction.create(idTrx: transaction['_id'], origen: transaction['origen'], destino: transaction['destino'], monto: transaction['monto'], fecha: date)
+    end
+
     @account = getAccount
-    @transactions = getTransactions
+    @transactions = Transaction.all.order(fecha: :desc)
   end
 
   def production
@@ -188,9 +201,9 @@ class AdminController < ApiController
     return {}
   end
 
-  def getTransactions
+  def getTransactions(fechaInicio)
     uri = ENV['general_system_url'] + 'banco/cartola'
-    data = {'id' => ENV['id_cuenta_banco'], 'fechaInicio' =>  1460313413000, 'fechaFin' => Time.now.to_i*1000}
+    data = {'id' => ENV['id_cuenta_banco'], 'fechaInicio' =>  fechaInicio, 'fechaFin' => Time.now.to_i*1000}
 
     response = JSON.parse(post(uri, data=data).body)
   rescue JSON::ParserError

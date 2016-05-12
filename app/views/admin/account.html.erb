@@ -3,7 +3,7 @@
 <h2>Informaciones generals</h2>
 <ul>
   <li><b>Saldo:</b> <%= number_to_currency(@account['saldo'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u") %></li>
-  <li><b>Transacciones:</b> <%= @transactions['total'] %></li>
+  <li><b>Transacciones:</b> <%= @transactions.length %></li>
 </ul>
 <h2>Transacciones</h2>
 <table class="table table-striped">
@@ -20,10 +20,10 @@
   <tbody>
     <% credito =0 %>
     <% debito = 0 %>
-    <% @transactions['data'].reverse!().each do |transaction|%>
+    <% @transactions.each do |transaction|%>
     <tr>
-      <td><%= transaction['_id'] %></td>
-      <td><%= transaction['created_at'].to_datetime.in_time_zone('Santiago').strftime("%F @ %T") %></td>
+      <td><%= transaction['idTrx'] %></td>
+      <td><%= transaction['fecha'].to_datetime.in_time_zone('Santiago').strftime("%F @ %T") %></td>
       <td><%= transaction['origen'] %></td>
       <td><%= transaction['destino'] %></td>
       <td>

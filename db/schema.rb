@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160504133235) do
+ActiveRecord::Schema.define(version: 20160512135136) do
 
   create_table "facturas", force: :cascade do |t|
     t.string   "idFactura",  limit: 255
@@ -34,5 +34,15 @@ ActiveRecord::Schema.define(version: 20160504133235) do
   end
 
   add_index "orden_compras", ["idOC"], name: "index_orden_compras_on_idOC", unique: true, using: :btree
+
+  create_table "transactions", force: :cascade do |t|
+    t.string   "idTrx",      limit: 255
+    t.string   "origen",     limit: 255
+    t.string   "destino",    limit: 255
+    t.integer  "monto",      limit: 4
+    t.datetime "fecha"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
 end
