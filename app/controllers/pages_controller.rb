@@ -1,6 +1,9 @@
 require 'json'
 
 class PagesController < BodegaController
+  def index
+  end
+
   def home
     ordenesId = OrdenCompra.all.order(created_at: :desc)
     @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}

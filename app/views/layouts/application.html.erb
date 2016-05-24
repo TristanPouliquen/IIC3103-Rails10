@@ -30,13 +30,13 @@
               <% if current_page?(:controller => 'pages', :action => 'home') %>
                 class="active"
               <% end %>
-            ><a href="/">Ordenes de compra</a>
+            ><a href="/bodegas/">Ordenes de compra</a>
             </li>
             <li
               <% if current_page?(:controller => 'pages', :action => 'warehouses') %>
                 class="active"
               <% end %>
-            ><a href="/bodegas">Estado de las bodegas</a>
+            ><a href="/bodega/bodegas">Estado de las bodegas</a>
             </li>
             <li>
               <a href="/api/documentacion">API Documentacion</a>
@@ -46,30 +46,30 @@
               <% if current_page?(:controller => 'admin', :action => 'index') %>
                 class="active"
               <% end %>
-            ><a href="/admin/index">Estado de bodegas</a>
+            ><a href="/bodega/admin/index">Estado de bodegas</a>
             </li>
             <li
               <% if current_page?(:controller => 'admin', :action => 'production') %>
                 class="active"
               <% end %>
-            ><a href="/admin/produccion">Produccion</a>
+            ><a href="/bodega/admin/produccion">Produccion</a>
             </li>
             <li
               <% if current_page?(:controller => 'admin', :action => 'purchase') %>
                 class="active"
               <% end %>
-            ><a href="/admin/compras">Compras</a>
+            ><a href="/bodega/admin/compras">Compras</a>
             </li>
             <li
               <% if current_page?(:controller => 'admin', :action => 'account') %>
                 class="active"
               <% end %>
-            ><a href="/admin/cartola">Cartola</a>
+            ><a href="/bodega/admin/cartola">Cartola</a>
             </li>
           <% end %>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/admin/index">Admin</a></li>
+          <li><a href="/bodega/admin/index">Admin</a></li>
           <li><a href="/api/datos">Grupo10</a></li>
         </ul>
       </div><!-- /.navbar-collapse -->

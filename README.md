@@ -11,6 +11,7 @@ The API documentation is available [here](http://integra10.ing.puc.cl/api/docume
 1. You must have Ruby installed (v>2.0.0)
 2. You must have installed the bundler gem (else `gem install bundler`)
 3. You must have MySQL installed and running
+4. You must have ImageMagick installed
 
 ## Installation
 
