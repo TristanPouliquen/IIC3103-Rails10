@@ -6,6 +6,6 @@ every 4.hours do
   rake "ftp:process"
 end
 
-every 4.hours do
+every 10.minutes do
 	rake "stock:update"
 end
