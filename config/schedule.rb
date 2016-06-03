@@ -5,3 +5,7 @@ set :output, "#/home/administrator/integra10-rails/shared/log/cron.log"
 every 4.hours do
   rake "ftp:process"
 end
+
+every 4.hours do
+	rake "stock:update"
+end
