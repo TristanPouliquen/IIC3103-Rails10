@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   root 'pages#index'
 
+  patch '/spree/checkout/update/delivery' => 'spree#spreePay'
+  get 'spree/order/:factura/success' => 'spree#success'
+  get 'spree/order/:factura/failure' => 'spree#failure'
+
   mount Spree::Core::Engine, at: '/spree'
 
   scope :path => '/bodega' do

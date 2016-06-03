@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  factura: MyString
+  boleta: MyString
+
+two:
+  factura: MyString
+  boleta: MyString

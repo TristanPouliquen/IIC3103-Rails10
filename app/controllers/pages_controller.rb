@@ -1,5 +1,4 @@
 require 'json'
-
 class PagesController < BodegaController
   def index
   end

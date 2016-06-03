@@ -7,7 +7,7 @@ class AdminController < ApiController
     authenticate_or_request_with_http_basic('Administration') do |username, password|
       username == 'grupo10' && password == ENV['password_admin']
     end
-  end     
+  end
 
   def index
     almacenes = getAlmacenes
@@ -89,7 +89,7 @@ class AdminController < ApiController
       flash[:error] = "Error con la transaccion: " + transaction.body.force_encoding('utf-8').to_s
     end
 
-    redirect_to '/admin/produccion'
+    redirect_to '/bodega/admin/produccion'
   end
 
   def purchases
@@ -126,7 +126,7 @@ class AdminController < ApiController
       flash[:error] = "Error en la creacion de la orden de compra : #{response.to_s}"
     end
 
-    redirect_to '/admin/compras'
+    redirect_to '/bodega/admin/compras'
   end
 
   def processProductionRequirements(products, saldo)

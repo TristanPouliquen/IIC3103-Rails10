@@ -9,7 +9,7 @@ class BodegaController < ApplicationController
     end
 
     flash[:info] = "Movimiento de los productos en procesamiento. Puede demorar unos minutos."
-    redirect_to '/admin/index'
+    redirect_to '/bodega/admin/index'
   end
 
   def getAlmacenes
@@ -30,7 +30,7 @@ class BodegaController < ApplicationController
     hmac = generateHash('GET' +  almacenId.to_s + sku.to_s)
     if limit.nil?
       uri = ENV['bodega_system_url'] + 'stock?almacenId=' + almacenId.to_s + '&sku=' + sku.to_s
-    else 
+    else
       uri = ENV['bodega_system_url'] + 'stock?almacenId=' + almacenId.to_s + '&sku=' + sku.to_s + '&limit=' + limit.to_s
     end
 
@@ -42,7 +42,7 @@ class BodegaController < ApplicationController
     uri = ENV['bodega_system_url'] + 'moveStock'
     data= {"productoId"=>productoId, "almacenId"=>almacenId}
 
-    return post(uri, data= data , hmac= hmac )  
+    return post(uri, data= data , hmac= hmac )
   end
 
   def moveBatch(amount, sku,originId, destinationId)

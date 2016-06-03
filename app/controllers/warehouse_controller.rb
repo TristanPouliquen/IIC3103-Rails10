@@ -1,3 +1,0 @@
-class WarehouseController < ApplicationController
-
-end
