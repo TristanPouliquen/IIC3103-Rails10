@@ -5,6 +5,7 @@ namespace :stock do
   task update: :environment do
 
     tabla_stock = Spree::StockItem.find_by_sql("SELECT * FROM spree_stock_items a, spree_variants b WHERE a.id = b.id")
+    #tabla_stock = Spree::StockItem.joins(:variant).select('spree_stock_items.count_on_hand, spree_variants.sku')
 
     tabla_stock.each do |item|
       sku = item['sku']
@@ -14,6 +15,7 @@ namespace :stock do
       response = http.request(request)
       quantity = JSON.parse(response.body)['stock']
       item['count_on_hand'] = quantity
+      item.save
     end
   end
 end
