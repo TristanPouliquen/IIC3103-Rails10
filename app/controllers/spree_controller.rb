@@ -12,6 +12,7 @@ class SpreeController < Spree::BaseController
     address_string = formatAddress(address)
 
     if !boleta_factura['processed']
+      boleta_factura.update(processed: true)
       order.line_items.each do |item|
         variant = Spree::Variant.find(item['variant_id'])
         if variant.nil?
