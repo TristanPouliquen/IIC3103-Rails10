@@ -3,6 +3,7 @@ require 'net/http'
 namespace :stock do
   desc "TODO"
   task update: :environment do
+    puts Time.now.in_time_zone('Santiago').to_s + ' : Updating stocks'
 
     tabla_stock = Spree::StockItem.find_by_sql("SELECT * FROM spree_stock_items a, spree_variants b WHERE a.id = b.id")
     #tabla_stock = Spree::StockItem.joins(:variant).select('spree_stock_items.count_on_hand, spree_variants.sku')
@@ -16,6 +17,7 @@ namespace :stock do
       quantity = JSON.parse(response.body)['stock']
       item['count_on_hand'] = quantity
       item.save
+      puts sku + ': ' + quantity
     end
   end
 end
