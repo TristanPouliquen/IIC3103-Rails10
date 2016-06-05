@@ -17,7 +17,7 @@ namespace :stock do
       quantity = JSON.parse(response.body)['stock']
       item['count_on_hand'] = quantity
       item.save
-      puts sku + ': ' + quantity
+      puts sku.to_s + ': ' + quantity.to_s
     end
   end
 end
