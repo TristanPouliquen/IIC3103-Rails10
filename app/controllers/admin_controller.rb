@@ -227,12 +227,7 @@ class AdminController < ApiController
 
   def putPurchaseOrder(sku, group, quantity, unitPrice)
     uri = ENV['general_system_url'] + 'oc/crear'
-    groupIdHash = {
-      3 => '571262b8a980ba030058ab51',
-      4 => '571262b8a980ba030058ab52',
-      6 => '571262b8a980ba030058ab54',
-      12 => '571262b8a980ba030058ab5a'
-    }
+    groupIdHash = JSON.parse(ENV['groups_number_to_id'])
 
     data = {
       'canal' => 'b2b',
