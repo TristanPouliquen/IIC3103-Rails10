@@ -133,8 +133,8 @@ class ApiController < BodegaController
       Factura.create idFactura: idBill.to_s
       if bill['total'] != purchaseOrder['cantidad'] * purchaseOrder['precioUnitario']
         return {'accepted' => false, 'message' => 'Valor de la factura incoherente', 'status' => :bad_request}
-      elsif bill['proveedor'] != ENV['id_grupo']
-        return {'accepted' => false, 'message' => 'Error de proveedor', 'status' => :bad_request}
+      elsif bill['cliente'] != ENV['id_grupo']
+        return {'accepted' => false, 'message' => 'Error de cliente', 'status' => :bad_request}
       end
     end
     return {'accepted' => true}
@@ -149,10 +149,6 @@ class ApiController < BodegaController
       end
       if transaction['monto'] < factura['total']
         return {'accepted' => false, 'message' => 'Monto de la transaccion incoherente', 'status' => :bad_request}
-      end
-      groupsBankAccountsHash = JSON.parse(ENV['groups_id_to_bank'])
-      if groupsBankAccountsHash[factura['proveedor']] != transaction['origen']
-        return {'accepted' => false, 'message' => 'Proveedor y origen incoherentes', 'status' => :bad_request}
       end
       if transaction['destino'] != ENV['id_cuenta_banco']
         return {'accepted' => false, 'message' => 'Destino differente de nosotros', 'status' => :bad_request}
@@ -209,7 +205,7 @@ class ApiController < BodegaController
 
     return response
   end
-  
+
   def createBill(idOc)
     # Call mare.ing.puc.cl/facturas
     response = put(ENV["general_system_url"] + "facturas/", data= {"oc" => idOc})
@@ -247,7 +243,7 @@ class ApiController < BodegaController
 
     return response
   end
-  
+
   def payBill(idBill)
     groupIdToAccountId = JSON.parse(ENV['groups_id_to_bank'])
 
@@ -258,16 +254,16 @@ class ApiController < BodegaController
 
     if response.kind_of? Net::HTTPSuccess
       body = JSON.parse(response.body)
-      group_response = markBillAsPayed(idBill, body['_id'], bill['cliente'])
+      group_response = markBillAsPayed(idBill, body['_id'], bill['proveedor'])
     end
     return group_response
   end
 
-  def markBillAsPayed(idBill, idTrx, clienteId)
+  def markBillAsPayed(idBill, idTrx, providerId)
     response = post(ENV['general_system_url'] + 'facturas/pay', {'id' => idBill})
 
     groupIdHash = JSON.parse(ENV['groups_id_to_number'])
-    groupNumber = groupIdHash[clienteId]
+    groupNumber = groupIdHash[providerId]
 
     get("http://integra" + groupNumber.to_s + ".ing.puc.cl/api/pagos/recibir/" + idTrx.to_s + "?idfactura=" + idBill.to_s)
 

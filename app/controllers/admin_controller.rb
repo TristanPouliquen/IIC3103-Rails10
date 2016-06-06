@@ -234,7 +234,7 @@ class AdminController < ApiController
       'cantidad' => quantity.to_i,
       'sku' => sku.to_s,
       'cliente' => ENV['id_grupo'].to_s,
-      'proveedor' => groupIdHash[group.to_i],
+      'proveedor' => groupIdHash[group],
       'precioUnitario' => unitPrice.to_i,
       'fechaEntrega' => (Time.now + 60*60*24).to_i*1000,
       'notas' => "notas"
