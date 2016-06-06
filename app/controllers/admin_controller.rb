@@ -101,8 +101,8 @@ class AdminController < ApiController
      'stock' => getStockFromOtherGroup(44,4),}
     milk = {'sku' => 7, 'name' => 'Leche', 'unitPrice' => 1307, 'required' => 2000, 'group' => 12,
      'stock' => getStockFromOtherGroup(7,12),}
-    salt = {'sku' => 26, 'name' => 'Sal', 'unitPrice' => 926, 'required' => 153, 'group' => 6,
-     'stock' => getStockFromOtherGroup(26,6),}
+    salt = {'sku' => 26, 'name' => 'Sal', 'unitPrice' => 926, 'required' => 153, 'group' => 8,
+     'stock' => getStockFromOtherGroup(26,8),}
 
     @products = processBuyRequirements([wool, agave, milk, salt], @saldo)
   end
