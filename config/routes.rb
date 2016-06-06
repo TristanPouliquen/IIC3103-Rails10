@@ -13,14 +13,14 @@ Rails.application.routes.draw do
     get 'bodegas' => 'pages#warehouses'
 
     scope :path=> '/admin' do
-    get 'index' => "admin#index"
-    get 'produccion' => "admin#production"
-    post 'produce' => "admin#produce"
-    get 'compras' => "admin#purchases"
-    post 'purchase' => 'admin#purchase'
-    post 'move' => 'bodega#move'
-    get 'cartola' => 'admin#account'
-  end
+      get 'index' => "admin#index"
+      get 'produccion' => "admin#production"
+      post 'produce' => "admin#produce"
+      get 'compras' => "admin#purchases"
+      post 'purchase' => 'admin#purchase'
+      post 'move' => 'bodega#move'
+      get 'cartola' => 'admin#account'
+    end
   end
 
   scope :path => '/api' do

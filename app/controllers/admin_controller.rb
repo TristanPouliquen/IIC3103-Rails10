@@ -251,7 +251,7 @@ class AdminController < ApiController
   end
 
   def sendPurchaseOrder(ocId, group)
-    uri = 'http://integra' + group + '.ing.puc.cl/api/oc/recibir/' + ocId.to_s
+    uri = 'http://integra' + group.to_s + '.ing.puc.cl/api/oc/recibir/' + ocId.to_s
     response = get(uri)
     return JSON.parse(response.body)
   rescue JSON::ParserError
