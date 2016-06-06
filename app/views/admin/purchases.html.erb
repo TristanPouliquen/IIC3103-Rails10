@@ -20,7 +20,7 @@
         <td><%= product['group']%></td>
         <td><%= product['stock']%></td>
         <td>
-          <%= form_tag "/admin/purchase", method: "post" do %>
+          <%= form_tag "/bodega/admin/purchase", method: "post" do %>
             <input type="hidden" name="amount" value="<%= product['required'] %>">
             <input type="hidden" name="sku" value="<%= product['sku'] %>">
             <input type="hidden" name="unitPrice" value="<%= product['unitPrice'] %>">
