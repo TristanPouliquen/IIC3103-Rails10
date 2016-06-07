@@ -85,6 +85,7 @@ class BodegaController < ApplicationController
           moverStockBodega(product['_id'], almacenId, idOc, precio)
         end
       end
+      amount = amount -200
     end
 
     response = getStock(ENV['almacen_despacho'], sku, amount)
