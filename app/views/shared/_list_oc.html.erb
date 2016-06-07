@@ -3,11 +3,16 @@
     <tr class="text-center">
       <th>ID</th>
       <th>Fecha de creacion</th>
+      <th>Cliente</th>
+      <th>Proveedor</th>
       <th>Canal</th>
       <th>Sku</th>
       <th>Cantidad</th>
       <th>Monto</th>
       <th>Cantidad despachada</th>
+      <% if list_oc.first.has_key?('rechazo') %>
+      <th>Motivo de rechazo</th>
+      <% end %>
     </tr>
   </thead>
   <tbody>
@@ -20,11 +25,28 @@
         <tr>
           <td><%= orden['_id'] %></td>
           <td><%= orden['created_at'].to_datetime.in_time_zone('Santiago').strftime("%F @ %T") %></td>
+          <td>
+            <% if JSON.parse(ENV['groups_id_to_number']).has_key?(orden['cliente']) %>
+              <%= JSON.parse(ENV['groups_id_to_number'])[orden['cliente']] %>
+            <% else %>
+              <%= orden['cliente'] %>
+            <% end %>
+          </td>
+          <td>
+            <% if JSON.parse(ENV['groups_id_to_number']).has_key?(orden['proveedor']) %>
+              <%= JSON.parse(ENV['groups_id_to_number'])[orden['proveedor']] %>
+            <% else %>
+              <%= orden['proveedor'] %>
+            <% end %>
+          </td>
           <td><%= orden['canal'] %></td>
           <td><%= orden['sku'] %></td>
           <td><%= orden['cantidad'] %></td>
           <td><%= orden['precioUnitario']*orden['cantidad'] %></td>
           <td><%= orden['cantidadDespachada'] %></td>
+          <% if orden.has_key?('rechazo') %>
+            <td><%= orden['rechazo'] %></td>
+          <% end %>
         </tr>
       <% end %>
     <% end %>
