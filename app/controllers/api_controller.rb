@@ -166,12 +166,12 @@ class ApiController < BodegaController
     unitPrice = purchaseOrder['precioUnitario']
     idOc = purchaseOrder['_id']
 
-    if 'b2b' == canal
+    if 'ftp' == canal
+      dispatchBatch(amount, sku, unitPrice, idOc, 'Internacional')
+    else
       almacenId = groupsAlmacenIdHash[purchaseOrder['cliente']]
       moveBatchBodega(amount, sku, unitPrice, idOc, almacenId)
       get('http://integra' + groupsNumberHash[purchaseOrder['cliente']].to_s + '.ing.puc.cl/api/despachos/recibir/' + idBill)
-    else
-      dispatchBatch(amount, sku, unitPrice, idOc, 'Internacional')
     end
   end
 
