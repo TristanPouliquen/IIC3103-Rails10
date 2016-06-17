@@ -10,7 +10,7 @@
       <th>Cantidad</th>
       <th>Monto</th>
       <th>Cantidad despachada</th>
-      <% if list_oc.first.has_key?('rechazo') %>
+      <% if !list_oc.empty? and list_oc[0].has_key?('rechazo') %>
       <th>Motivo de rechazo</th>
       <% end %>
     </tr>
