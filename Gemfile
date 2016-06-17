@@ -10,6 +10,12 @@ gem 'net-sftp'
 
 gem 'whenever', :require => false
 
+gem 'spree_social_products', github: 'TristanPouliquen/spree_social_products', branch: 'master'
+
+gem 'koala', '~>2.2'
+
+gem 'twitter'
+
 # Add this if you're using rbenv
 # gem 'capistrano-rbenv', github: "capistrano/rbenv"
 
@@ -51,6 +57,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'active_model_serializers', '0.9.3'
 
-gem 'spree', '~> 3.0.9'
-gem 'spree_gateway', '~> 3.0.0'
-gem 'spree_auth_devise', '~> 3.0.0'
+gem 'spree', '~>3.1.0'
+gem 'spree_gateway', '~> 3.1.0'
+gem 'spree_auth_devise', '~> 3.1.0'
