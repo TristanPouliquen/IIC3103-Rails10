@@ -19,14 +19,20 @@ class AdminController < ApiController
         @almacen['despacho'] = almacen
       elsif almacen["pulmon"]
         @almacen['pulmon'] = almacen
+      elsif @almacen['X'].nil?
+        @almacen['X']= almacen
+      else
+        @almacen['Y']=almacen
       end
     end
 
     @almacen['recepcion']['porcentaje'] = ((@almacen['recepcion']["usedSpace"].to_f / @almacen['recepcion']["totalSpace"].to_f) * 100).round(2)
     @almacen['despacho']['porcentaje'] = ((@almacen['despacho']["usedSpace"].to_f / @almacen['despacho']["totalSpace"].to_f) * 100).round(2)
     @almacen['pulmon']['porcentaje'] = ((@almacen['pulmon']["usedSpace"].to_f / @almacen['pulmon']["totalSpace"].to_f) * 100).round(2)
+    @almacen['X']['porcentaje'] = ((@almacen['X']["usedSpace"].to_f / @almacen['X']["totalSpace"].to_f) * 100).round(2)
+    @almacen['Y']['porcentaje'] = ((@almacen['Y']["usedSpace"].to_f / @almacen['Y']["totalSpace"].to_f) * 100).round(2)
 
-    @stock = getStockPorAlmacen
+    @stock = getStockPorAlmacen(@almacen)
   end
 
   def account
@@ -85,7 +91,9 @@ class AdminController < ApiController
       else
         flash[:error] = "Production no pedida. Error: " + response.body.force_encoding('utf-8').to_s
       end
-    else
+    else @almacen['X']['porcentaje'] = ((@almacen['X']["usedSpace"].to_f / @almacen['X']["totalSpace"].to_f) * 100).round(2)
+    @almacen['Y']['porcentaje'] = ((@almacen['Y']["usedSpace"].to_f / @almacen['Y']["totalSpace"].to_f) * 100).round(2)
+
       flash[:error] = "Error con la transaccion: " + transaction.body.force_encoding('utf-8').to_s
     end
 
@@ -193,8 +201,23 @@ class AdminController < ApiController
     return {}
   end
 
-  def getStockPorAlmacen
-    return {'recepcion' => getStockRecepcion, 'despacho' => getStockDespacho, 'pulmon' => getStockPulmon}
+  def getStockX(almacen)
+    hmac = generateHash('GET' + almacen['_id'])
+    return JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + almacen['_id'], hmac = hmac).body)
+  rescue JSON::ParserError
+    return {}
+  end
+
+  def getStockY(almacen)
+    hmac = generateHash('GET' + almacen['_id'])
+    return JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + almacen['_id'], hmac = hmac).body)
+  rescue JSON::ParserError
+    return {}
+  end
+
+
+  def getStockPorAlmacen(almacen)
+    return {'recepcion' => getStockRecepcion, 'despacho' => getStockDespacho, 'pulmon' => getStockPulmon, 'X' => getStockX(almacen['X']), 'Y' => getStockY(almacen['Y'])}
   end
 
   def getAccount

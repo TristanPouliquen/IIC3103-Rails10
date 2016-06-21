@@ -1,8 +1,8 @@
 class BodegaController < ApplicationController
 
   def move
-    originWarehouseId = ENV['almacen_' + params[:origin]]
-    destinationWarehouseId = ENV['almacen_' + params[:destination]]
+    originWarehouseId = params[:origin]
+    destinationWarehouseId = params[:destination]
     amount = params[:amount].to_i
     Thread.new do
       moveBatch(amount,params[:sku], originWarehouseId, destinationWarehouseId)
