@@ -59,6 +59,12 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'active_model_serializers', '0.9.3'
 
+<<<<<<< HEAD
 gem 'spree', '~>3.1.0'
 gem 'spree_gateway', '~> 3.1.0'
 gem 'spree_auth_devise', '~> 3.1.0'
+=======
+gem 'spree', '~> 3.0.9'
+gem 'spree_gateway', '~> 3.0.0'
+gem 'spree_auth_devise', '~> 3.0.0'
+>>>>>>> 393372111aedcc66b064d625170d2321780849c4

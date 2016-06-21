@@ -18,10 +18,10 @@ namespace :aqmp do
         # Test message
         # msg = {
         #   'sku' =>"APC-00001",
-        #   "precio" => 11,
+        #   "precio" => 10,
         #   "inicio" => Time.now.to_i * 1000,
         #   "fin" => (Time.now + 60*60*24).to_i*1000,
-        #   "codigo" => "tre",
+        #   "codigo" => "test",
         #   "publicar" => true
         # }
         variant = Spree::Variant.find_by_sku(msg['sku'])
@@ -72,21 +72,19 @@ namespace :aqmp do
   end
 end
 
+def postFB(msg,link="")
+  graph = Koala::Facebook::API.new(ENV['page_access_token'])
+  return graph.put_connections('me', 'feed', {:message => msg, :link => link})
+end
 
-
-  def postFB(msg,link="")
-    graph = Koala::Facebook::API.new(ENV['page_access_token'])
-    return graph.put_connections('me', 'feed', {:message => msg, :link => link})
+def postTW(msg, link="")
+  client = Twitter::REST::Client.new do |config|
+    config.consumer_key        = ENV['twitter_consumer_key']
+    config.consumer_secret     = ENV['twitter_consumer_secret']
+    config.access_token        = ENV['twitter_access_token']
+    config.access_token_secret = ENV['twitter_access_token_secret']
   end
-
-  def postTW(msg, link="")
-    client = Twitter::REST::Client.new do |config|
-      config.consumer_key        = ENV['twitter_consumer_key']
-      config.consumer_secret     = ENV['twitter_consumer_secret']
-      config.access_token        = ENV['twitter_access_token']
-      config.access_token_secret = ENV['twitter_access_token_secret']
-    end
-    tweet = msg + " " + URI.encode(link)
-    response = client.update(tweet)
-    return response
-  end
+  tweet = msg + " " + URI.encode(link)
+  response = client.update(tweet)
+  return response
+end
