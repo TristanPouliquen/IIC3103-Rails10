@@ -22,6 +22,25 @@ class ApiController < BodegaController
         result['stock'] = product['total']
       end
     end
+    //
+    hmac2 = generateHash('GET' + ENV['almacen_X'])
+    stock2 = JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_X'], hmac = hmac2).body)
+
+    stock2.each do |product|
+      if product['_id'].to_i == sku.to_i && product.has_key?('total')
+        result['stock'] += product['total']
+      end
+    end
+    //
+    hmac3 = generateHash('GET' + ENV['almacen_Y'])
+    stock3 = JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_Y'], hmac = hmac3).body)
+
+    stock3.each do |product|
+      if product['_id'].to_i == sku.to_i && product.has_key?('total')
+        result['stock'] += product['total']
+      end
+    end
+
     return result
   end
 
