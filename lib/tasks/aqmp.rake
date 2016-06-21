@@ -1,4 +1,7 @@
 require "bunny"
+require 'json'
+require 'koala'
+require 'twitter'
 
 namespace :aqmp do
   desc "TODO"
@@ -15,10 +18,10 @@ namespace :aqmp do
         # Test message
         # msg = {
         #   'sku' =>"APC-00001",
-        #   "precio" => 10,
+        #   "precio" => 11,
         #   "inicio" => Time.now.to_i * 1000,
         #   "fin" => (Time.now + 60*60*24).to_i*1000,
-        #   "codigo" => "test",
+        #   "codigo" => "tre",
         #   "publicar" => true
         # }
         variant = Spree::Variant.find_by_sku(msg['sku'])
@@ -33,10 +36,12 @@ namespace :aqmp do
           )
         promotion_rule = Spree::PromotionRule.create!(
           type: "Spree::Promotion::Rules::Product",
-          preferences: {'preferred_match_policy' => 'any'},
-          promotion: promotion,
-          product_ids_string: product['id'].to_s
+          promotion: promotion
           )
+        promotion_rule.update_attributes({
+          'product_ids_string' => product['id'].to_s,
+          'preferred_match_policy' => 'any'
+          })
         calculator = Spree::Calculator::FlatRate.create(
           preferred_currency: 'USD',
           preferred_amount: msg['precio']
@@ -45,12 +50,43 @@ namespace :aqmp do
           promotion: promotion,
           calculator: calculator
           )
+
+        if msg['publicar']
+          productURL = ENV['group_system_url'] + "spre/product/" + product['slug']
+          msgFB = "Nueva promocion!\nDisfruta de " + product['name'] + " al precio increible de " + msg['precio'].to_s + " CLP "
+          msgFB = msgFB + "del " + Time.at(msg['inicio']).to_time.strftime("%d/%m") + " hasta el " + Time.at(msg['fin']).to_time.strftime("%d/%m") + "!\n"
+          msgFB = msgFB + "Cliquea el enlace y utiliza el codigo " + msg['codigo'] + "!"
+          msgTW = "#Promocion!\n" + product['name'] + " a " + msg["precio"].to_s + " CLP "
+          msgTW = msgTW + "de " + Time.at(msg['inicio']).to_time.strftime("%d/%m") + " hasta" + Time.at(msg['fin']).to_time.strftime("%d/%m") + "!\n"
+          msgTW = msgTW + "Codigo " + msg['codigo']
+          postFB(msgFB, productURL)
+          postTW(msgTW, productURL)
+        end
       end
     rescue Bunny::NotFound => _
       puts "Ofertas queue not found"
     ensure
       b.close if b.open?
     end
+    puts "Finished processing queue"
+  end
+end
+
+
+
+  def postFB(msg,link="")
+    graph = Koala::Facebook::API.new(ENV['page_access_token'])
+    return graph.put_connections('me', 'feed', {:message => msg, :link => link})
   end
 
-end
+  def postTW(msg, link="")
+    client = Twitter::REST::Client.new do |config|
+      config.consumer_key        = ENV['twitter_consumer_key']
+      config.consumer_secret     = ENV['twitter_consumer_secret']
+      config.access_token        = ENV['twitter_access_token']
+      config.access_token_secret = ENV['twitter_access_token_secret']
+    end
+    tweet = msg + " " + URI.encode(link)
+    response = client.update(tweet)
+    return response
+  end

@@ -12,9 +12,9 @@ gem 'whenever', :require => false
 
 gem 'spree_social_products', github: 'TristanPouliquen/spree_social_products', branch: 'master'
 
-gem 'koala', '~>2.2'
+gem 'koala', '~>2.2', :require => false
 
-gem 'twitter'
+gem 'twitter', :require => false
 
 gem 'bunny', :require => false
 
@@ -59,12 +59,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'active_model_serializers', '0.9.3'
 
-<<<<<<< HEAD
 gem 'spree', '~>3.1.0'
 gem 'spree_gateway', '~> 3.1.0'
 gem 'spree_auth_devise', '~> 3.1.0'
-=======
-gem 'spree', '~> 3.0.9'
-gem 'spree_gateway', '~> 3.0.0'
-gem 'spree_auth_devise', '~> 3.0.0'
->>>>>>> Connection to Cloud AQMP
