@@ -21,7 +21,7 @@ namespace :stock do
     end
   end
   desc "TODO"
-  task empty: :environment do
+  task emptyRecepcion: :environment do
     listSku = JSON.parse(getSkusWithStock(ENV['almacen_recepcion']).body)
     listSku.each do |item|
       almacenes = getAlmacenes
@@ -43,6 +43,32 @@ namespace :stock do
       else
         moveBatch(almacenXLibre, item['_id'],ENV['almacen_recepcion'], ENV['almacen_X'])
         moveBatch(item['total']-almacenXLibre, item['_id'],ENV['almacen_recepcion'], ENV['almacen_Y'])
+      end
+    end
+  end
+  desc "TODO"
+  task emptyPulmon: :environment do
+    listSku = JSON.parse(getSkusWithStock(ENV['almacen_pulmon']).body)
+    listSku.each do |item|
+      almacenes = getAlmacenes
+      puts almacenes
+      almacenXLibre = 0
+      almacenYLibre = 0
+      almacenes.each do |almacen|
+        if almacen['_id'] == ENV['almacen_X']
+          almacenX = almacen
+          almacenXLibre = almacenX['totalSpace']-almacenX['usedSpace']
+        elsif almacen['_id'] == ENV['almacen_Y']
+          almacenY = almacen
+          almacenYLibre = almacenY['totalSpace']-almacenY['usedSpace']
+        end
+      end
+
+      if almacenXLibre > item['total']
+        moveBatch(item['total'], item['_id'],ENV['almacen_pulmon'], ENV['almacen_X'])
+      else
+        moveBatch(almacenXLibre, item['_id'],ENV['almacen_pulmon'], ENV['almacen_X'])
+        moveBatch(item['total']-almacenXLibre, item['_id'],ENV['almacen_pulmon'], ENV['almacen_Y'])
       end
     end
   end
