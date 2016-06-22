@@ -5,23 +5,6 @@ include ERB::Util
 
 class SpreeController < Spree::BaseController
 
-  def postFB(msg,link="")
-    graph = Koala::Facebook::API.new(ENV['page_access_token'])
-    return graph.put_connections('me', 'feed', {:message => msg, :link => link})
-  end
-
-  def postTW(msg, link="")
-    client = Twitter::REST::Client.new do |config|
-      config.consumer_key        = ENV['twitter_consumer_key']
-      config.consumer_secret     = ENV['twitter_consumer_secret']
-      config.access_token        = ENV['twitter_access_token']
-      config.access_token_secret = ENV['twitter_access_token_secret']
-    end
-    tweet = msg + " " + URI.encode(link)
-    response = client.update(tweet)
-    return response
-  end
-
   def success
     boleta_factura = BoletaFactura.find_by_factura(params[:factura])
     order = Spree::Order.find_by_number(params[:factura])

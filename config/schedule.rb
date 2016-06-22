@@ -10,3 +10,7 @@ end
 every 10.minutes do
 	rake "stock:update"
 end
+
+every 1.hour do
+  rake "aqmp:consume"
+end
