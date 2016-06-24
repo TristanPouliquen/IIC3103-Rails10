@@ -107,7 +107,7 @@ class ApiController < BodegaController
       if !record.nil?
         return {'accepted' => false, 'message' => 'Orden de compra ya procesada', 'status' => :bad_request}
       else
-        OrdenCompra.create idOC: idOc.to_s
+        OrdenCompra.create idOC: idOc.to_s, :origen purchaseOrder['proveedor'], :destino purchaseOrder['cliente'], :monto (purchaseOrder['precioUnitario']* purchaseOrder['cantidad']), :canal purchaseOrder['canal'], :cantidad purchaseOrder['cantidad'], :cantidad_despachada purchaseOrder['cantidadDespachada'], :estado purchaseOrder['estado']
 
         stock = retrieveStockWithSku(purchaseOrder['sku'])['stock']
 
@@ -130,7 +130,7 @@ class ApiController < BodegaController
     else
       purchaseOrder = getPurchaseOrder(bill['oc'])
 
-      Factura.create idFactura: idBill.to_s
+      Factura.create idFactura: idBill.to_s, :origen purchaseOrder['proveedor'], :destino purchaseOrder['cliente'], :monto (purchaseOrder['cantidad'] * purchaseOrder['precioUnitario']), :estado purchaseOrder['estado']
       if bill['total'] != purchaseOrder['cantidad'] * purchaseOrder['precioUnitario']
         return {'accepted' => false, 'message' => 'Valor de la factura incoherente', 'status' => :bad_request}
       elsif bill['cliente'] != ENV['id_grupo']

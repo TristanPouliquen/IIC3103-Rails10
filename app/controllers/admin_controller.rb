@@ -112,7 +112,7 @@ class AdminController < ApiController
 
     if !purchaseOrder.empty?
       response = sendPurchaseOrder(purchaseOrder['_id'], params[:provider])
-      OrdenCompra.create idOC: purchaseOrder['_id']
+      OrdenCompra.create idOC: purchaseOrder['_id'], :origen purchaseOrder['proveedor'], :destino purchaseOrder['cliente'], :monto (purchaseOrder['precioUnitario'] * purchaseOrder['cantidad']), :canal purchaseOrder['canal'], :cantidad purchaseOrder['cantidad'], :cantidad_despachada purchaseOrder['cantidadDespachada'], :estado purchaseOrder['estado']
       if response.has_key?('aceptado')
         if response['aceptado']
           flash[:success] = 'Orden de compra enviada y aceptada'
