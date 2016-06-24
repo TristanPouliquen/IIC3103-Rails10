@@ -75,24 +75,38 @@ class BodegaController < ApplicationController
     return post(uri, data= data, hmac= hmac)
   end
 
-  def moveBatchBodega(amount, sku, precio, idOc, almacenId)
+  def moveBatchBodega(amount, sku, precio, idOc, destinationId)
     amount = amount
     while amount > 200
-      response = getStock(ENV['almacen_despacho'], sku, 200)
-      if response.kind_of? Net::HTTPSuccess
-        originProductList = JSON.parse(response.body)
-        originProductList.each do |product|
-          moverStockBodega(product['_id'], almacenId, idOc, precio)
-        end
-      end
+      moveBatchFromAlmacen(sku, 200, destinationId, idOc, precio)
       amount = amount -200
     end
 
-    response = getStock(ENV['almacen_despacho'], sku, amount)
+    moveBatchFromAlmacen(sku, amount, destinationId, idOc, precio)
+  end
+
+  def moveBatchFromAlmacen(sku, amount, destinationId, idOc, precio)
+    responseX = getSkusWithStock(ENV['almacen_X'])
+    stockX = JSON.parse(responseX.body)
+    responseY = getSkusWithStock(ENV['almacen_Y'])
+    stockY = JSON.parse(responseY.body)
+    if stockX.has_key?(sku)&&stockX['sku']>amount
+      moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'], idOc, precio)
+    else
+      stock_X = stockX.has_key?(sku) ? stockX['sku']:0;
+      moveProducts(ENV['almacen_X'] , sku, stock_X, ENV['almacen_despacho'], idOc, precio)
+      moveProducts(ENV['almacen_Y'] , sku, amount-stock_X, ENV['almacen_despacho'], idOc, precio)
+      end
+    end
+    moveProducts(ENV['almacen_despacho'] , sku, amount, destinationId, idOc, precio)
+  end
+
+  def moveProducts(originId, sku, amount, destinationId, idOc, precio)
+    response = getStock(originId, sku, amount)
     if response.kind_of? Net::HTTPSuccess
       originProductList = JSON.parse(response.body)
       originProductList.each do |product|
-        moverStockBodega(product['_id'], almacenId, idOc, precio)
+        moverStockBodega(product['_id'], destinationId , idOc, precio)
       end
     end
   end
