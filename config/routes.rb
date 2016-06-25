@@ -1,9 +1,11 @@
 Rails.application.routes.draw do
   root 'pages#index'
+  get '/checkout/gateway_landing/:order_number' => 'spree/checkout#process_gateway_return', :as => 'gateway_landing'
+  get '/admin/checkout/gateway_landing/:order_number' => 'spree/admin/payments#process_gateway_return', :as => 'admin_gateway_landing'
 
-  patch '/spree/checkout/update/delivery' => 'spree#spreePay'
-  get 'spree/order/:factura/success' => 'spree#success'
-  get 'spree/order/:factura/failure' => 'spree#failure'
+  # patch '/spree/checkout/update/delivery' => 'spree#spreePay'
+  # get 'spree/order/:factura/success' => 'spree#success'
+  # get 'spree/order/:factura/failure' => 'spree#failure'
 
   mount Spree::Core::Engine, at: '/spree'
 

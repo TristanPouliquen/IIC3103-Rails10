@@ -17,3 +17,5 @@ end
 
 Spree.user_class = "Spree::LegacyUser"
 Spree::Social::Config.facebook_app_id = ENV['facebook_id']
+
+Rails.application.config.spree.payment_methods << Spree::PaymentMethod::HostedPayment

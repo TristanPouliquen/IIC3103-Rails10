@@ -12,6 +12,8 @@ gem 'whenever', :require => false
 
 gem 'spree_social_products', github: 'TristanPouliquen/spree_social_products', branch: 'master'
 
+# gem 'hosted_gateway', github: 'TristanPouliquen/spree-hosted-gateway', branch: 'master'
+
 gem 'koala', '~>2.2', :require => false
 
 gem 'twitter', :require => false
