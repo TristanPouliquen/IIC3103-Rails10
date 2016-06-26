@@ -29,7 +29,7 @@ gem 'bunny', :require => false
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.6'
 # Use mysql as the database for Active Record
-gem 'mysql2', '>= 0.3.13', '< 0.5'
+gem 'mysql2', '0.3.18'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -61,6 +61,8 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'active_model_serializers', '0.9.3'
 
+
+gem 'spree_i18n', github: 'spree-contrib/spree_i18n', branch: '3-1-stable'
 gem 'spree', '~>3.1.0'
 gem 'spree_gateway', '~> 3.1.0'
 gem 'spree_auth_devise', '~> 3.1.0'
