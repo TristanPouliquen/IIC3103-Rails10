@@ -1,0 +1,33 @@
+<div class="panel panel-default">
+  <div class="panel-heading stock-location no-borderb">
+    <h1 class="panel-title">
+      Boleta information
+    </h1>
+  </div>
+  <table class="table table-bordered">
+    <% if boleta.empty? %>
+      <tr>
+        <td class="warning text-muted">
+          No boleta information encountered
+        </td>
+      </tr>
+    <% else %>
+      <tr>
+        <th>Id boleta</th>
+        <td><%= boleta['_id'] %></td>
+        <th>Status</th>
+        <td><%= boleta['estado'] %></td>
+      </tr>
+      <tr>
+        <th>Gross total</th>
+        <td><%= number_to_currency(boleta['bruto'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u")%></td>
+        <th>VAT (19%)</th>
+        <td><%= number_to_currency(boleta['iva'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u") %></td>
+      </tr>
+      <tr>
+        <th>Net total</th>
+        <td colspan="3"><%= number_to_currency(boleta['total'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u")%></td>
+      </tr>
+    <% end %>
+  </table>
+</div>

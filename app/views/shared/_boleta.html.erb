@@ -1,26 +1,29 @@
-<table class="table table-bordered">
-  <tr>
-    <th>Id boleta</th>
-    <td><%= @boleta['_id'] %></td>
-  </tr>
-  <tr>
-    <th>Status</th>
-    <td><%= @boleta['estado'] %></td>
-  </tr>
-  <tr>
-    <th>Client</th>
-    <td><%= @boleta['cliente'] %></td>
-  </tr>
-  <tr>
-    <th>Gross total</th>
-    <td><%= number_to_currency(@boleta['bruto'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u")%></td>
-  </tr>
-  <tr>
-    <th>VAT (19%)</th>
-    <td><%= number_to_currency(@boleta['iva'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u") %></td>
-  </tr>
-  <tr>
-    <th>Net total</th>
-    <td><%= number_to_currency(@boleta['total'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u")%></td>
-  </tr>
-</table>
+<h4>
+  Boleta information
+</h4>
+<% if boleta.empty? %>
+  <div clas="row">
+    <div class="col-xs-12 warning">
+      Unable to retrieve boleta information
+    </div>
+  </div>
+<% else %>
+  <table class="table table-bordered">
+    <tr>
+      <th>Id boleta</th>
+      <td><%= boleta['_id'] %></td>
+      <th>Status</th>
+      <td><%= boleta['estado'] %></td>
+    </tr>
+    <tr>
+      <th>Gross total</th>
+      <td><%= number_to_currency(boleta['bruto'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u")%></td>
+      <th>VAT (19%)</th>
+      <td><%= number_to_currency(boleta['iva'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u") %></td>
+    </tr>
+    <tr>
+      <th>Net total</th>
+      <td colspan="3"><%= number_to_currency(boleta['total'], unit: "CLP$", separator: ",", delimiter: ".", format: "%n %u")%></td>
+    </tr>
+  </table>
+<% end %>
