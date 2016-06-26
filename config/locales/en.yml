@@ -21,6 +21,8 @@
 
 en:
   hello: "Hello world"
+  order_processed_successfully: "Oder processed successfully"
+  payment_canceled: "You canceled the payment"
   status_param_key: "Transaction Status Field"
   successful_transaction_value: "Successful transaction value"
   external_gateway:
