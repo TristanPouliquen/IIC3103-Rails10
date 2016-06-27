@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160624203006) do
+ActiveRecord::Schema.define(version: 20160627183616) do
 
   create_table "boleta_facturas", force: :cascade do |t|
     t.string   "factura",    limit: 255
@@ -68,6 +68,13 @@ ActiveRecord::Schema.define(version: 20160624203006) do
   end
 
   add_index "orden_compras", ["idOC"], name: "index_orden_compras_on_idOC", unique: true, using: :btree
+
+  create_table "saldo_diarios", force: :cascade do |t|
+    t.integer  "saldo",      limit: 4
+    t.date     "date"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
 
   create_table "spree_addresses", force: :cascade do |t|
     t.string   "firstname",         limit: 255
