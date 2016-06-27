@@ -61,7 +61,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'active_model_serializers', '0.9.3'
 
-
 gem 'spree_i18n', github: 'spree-contrib/spree_i18n', branch: '3-1-stable'
 gem 'spree', '~>3.1.0'
 gem 'spree_gateway', '~> 3.1.0'

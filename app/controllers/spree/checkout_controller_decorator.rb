@@ -38,6 +38,10 @@ module Spree
       gateway = PaymentMethod.find_by_type("Spree::PaymentMethod::HostedPayment")
       @order, @boleta, payment_made = gateway.process_response(params)
 
+      puts @order.class
+      puts @boleta
+      puts payment_made
+
       if @order
         if payment_made
           #Payment successfully processed
@@ -47,7 +51,6 @@ module Spree
           payment.amount = params[:amount] || @order.total
           payment.payment_method = gateway
           payment.complete
-          @order.save
 
           address = Spree::Address.find(@order['ship_address_id'])
           address_string = formatAddress(address)
@@ -69,17 +72,18 @@ module Spree
               end
             end
           end
+          @order.state = "complete"
+          @order.completed_at = Time.now
+          @order.save
         else
           @order.payments.clear
-          @order.state == "canceled"
+          @order.state = "canceled"
           @order.canceled_at = Time.now
+          @order.completed_at = Time.now
+          @order.save
         end
 
-        if @order.next
-          state_callback(:after)
-        end
-
-        if @order.completed?
+        if @order.completed? or @order.canceled?
           if @order.state == "complete"
             flash[:notice] = I18n.t(:order_processed_successfully)
           elsif @order.state == "canceled"
@@ -95,7 +99,7 @@ module Spree
         else
           redirect_to checkout_state_path(@order.state)
         end
-      else @order.nil?
+      else
         #Order not passed through correctly
         flash[:error] = I18n.t(:order_missing)
         redirect_to checkout_path

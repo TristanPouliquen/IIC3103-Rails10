@@ -46,7 +46,7 @@ module Spree
         return [order, boleta, transaction_succeeded]
       rescue ActiveRecord::RecordNotFound
         #Return nil and false if we couldn't find the order - this is probably bad.
-        return [nil, false]
+        return [nil, nil, false]
       end
     end
 
