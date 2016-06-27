@@ -43,34 +43,6 @@ module Spree
         #Check for successful response
         transaction_succeeded = boleta['estado'] == 'pagada'
 
-        if !boleta_factura['processed']
-          boleta_factura.update(processed: true)
-          if transaction_succeeded
-            order.update(state: 'complete', completed_at: Time.now)
-            address = Address.find(order['ship_address_id'])
-            address_string = formatAddress(address)
-            order.line_items.each do |item|
-              variant = Variant.find(item['variant_id'])
-              if variant.nil?
-                next
-              else
-                sku = variant['sku']
-                quantity = item['quantity']
-                price = item['price']
-
-                Thread.new do
-                  stock_item = StockItem.find_by_variant_id(variant['id'])
-                  stock_item.adjust_count_on_hand(-quantity)
-                  stock_item.save
-                  dispatchBatch(quantity, sku, price.to_i, boleta_factura[:boleta], address_string)
-                end
-              end
-            end
-          else
-            order.update(state: 'canceled',completed_at: Time.now)
-          end
-        end
-
         return [order, boleta, transaction_succeeded]
       rescue ActiveRecord::RecordNotFound
         #Return nil and false if we couldn't find the order - this is probably bad.
