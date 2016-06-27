@@ -25,42 +25,45 @@ namespace :aqmp do
         #   "publicar" => true
         # }
         variant = Spree::Variant.find_by_sku(msg['sku'])
-        product = Spree::Product.find(variant['product_id'])
-        promotion = Spree::Promotion.create!(
-          name: product['name'],
-          code: msg['codigo'],
-          description: product['name'] + ' a ' + msg['precio'].to_s,
-          usage_limit: 1000000,
-          starts_at: Time.at(msg['inicio'].to_i / 1000),
-          expires_at: Time.at(msg['fin'].to_i / 1000)
-          )
-        promotion_rule = Spree::PromotionRule.create!(
-          type: "Spree::Promotion::Rules::Product",
-          promotion: promotion
-          )
-        promotion_rule.update_attributes({
-          'product_ids_string' => product['id'].to_s,
-          'preferred_match_policy' => 'any'
-          })
-        calculator = Spree::Calculator::FlatRate.create(
-          preferred_currency: 'USD',
-          preferred_amount: msg['precio']
-          )
-        promotion_action = Spree::Promotion::Actions::CreateItemAdjustments.create(
-          promotion: promotion,
-          calculator: calculator
-          )
+        if !variant.nil?
+          product = Spree::Product.find(variant['product_id'])
+          promotion = Spree::Promotion.create!(
+            name: product['name'],
+            description: product['name'] + ' a ' + msg['precio'].to_s,
+            starts_at: Time.at(msg['inicio'].to_i / 1000),
+            expires_at: Time.at(msg['fin'].to_i / 1000)
+            )
+          if !msg['codigo'].empty?
+            promotion.update!(code: msg['codigo'])
+          end
+          promotion_rule = Spree::PromotionRule.create!(
+            type: "Spree::Promotion::Rules::Product",
+            promotion: promotion
+            )
+          promotion_rule.update_attributes({
+            'product_ids_string' => product['id'].to_s,
+            'preferred_match_policy' => 'any'
+            })
+          calculator = Spree::Calculator::FlatRate.create(
+            preferred_currency: 'USD',
+            preferred_amount: msg['precio']
+            )
+          promotion_action = Spree::Promotion::Actions::CreateItemAdjustments.create(
+            promotion: promotion,
+            calculator: calculator
+            )
 
-        if msg['publicar']
-          productURL = ENV['group_system_url'] + "spre/product/" + product['slug']
-          msgFB = "Nueva promocion!\nDisfruta de " + product['name'] + " al precio increible de " + msg['precio'].to_s + " CLP "
-          msgFB = msgFB + "del " + Time.at(msg['inicio']).to_time.strftime("%d/%m") + " hasta el " + Time.at(msg['fin']).to_time.strftime("%d/%m") + "!\n"
-          msgFB = msgFB + "Cliquea el enlace y utiliza el codigo " + msg['codigo'] + "!"
-          msgTW = "#Promocion!\n" + product['name'] + " a " + msg["precio"].to_s + " CLP "
-          msgTW = msgTW + "de " + Time.at(msg['inicio']).to_time.strftime("%d/%m") + " hasta" + Time.at(msg['fin']).to_time.strftime("%d/%m") + "!\n"
-          msgTW = msgTW + "Codigo " + msg['codigo']
-          postFB(msgFB, productURL)
-          postTW(msgTW, productURL)
+          if msg['publicar']
+            productURL = ENV['group_system_url'] + "spre/product/" + product['slug']
+            msgFB = "Nueva promocion!\nDisfruta de " + product['name'] + " al precio increible de " + msg['precio'].to_s + " CLP "
+            msgFB = msgFB + "del " + Time.at(msg['inicio']).to_time.strftime("%d/%m") + " hasta el " + Time.at(msg['fin']).to_time.strftime("%d/%m") + "!\n"
+            msgFB = msgFB + "Cliquea el enlace y utiliza el codigo " + msg['codigo'] + "!"
+            msgTW = "#Promocion!\n" + product['name'] + " a " + msg["precio"].to_s + " CLP "
+            msgTW = msgTW + "de " + Time.at(msg['inicio']).to_time.strftime("%d/%m") + " hasta" + Time.at(msg['fin']).to_time.strftime("%d/%m") + "!\n"
+            msgTW = msgTW + "Codigo " + msg['codigo']
+            postFB(msgFB, productURL)
+            postTW(msgTW, productURL)
+          end
         end
       end
     rescue Bunny::NotFound => _
