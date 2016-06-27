@@ -17,8 +17,8 @@ namespace :aqmp do
         msg = JSON.parse(payload)
         # Test message
         # msg = {
-        #   'sku' =>"APC-00001",
-        #   "precio" => 10,
+        #   'sku' =>"3",
+        #   "precio" => 1000,
         #   "inicio" => Time.now.to_i * 1000,
         #   "fin" => (Time.now + 60*60*24).to_i*1000,
         #   "codigo" => "test",
@@ -26,6 +26,7 @@ namespace :aqmp do
         # }
         variant = Spree::Variant.find_by_sku(msg['sku'])
         if !variant.nil?
+          price = Spree::Price.find_by_variant_id(variant['id'])
           product = Spree::Product.find(variant['product_id'])
           promotion = Spree::Promotion.create!(
             name: product['name'],
@@ -44,9 +45,8 @@ namespace :aqmp do
             'product_ids_string' => product['id'].to_s,
             'preferred_match_policy' => 'any'
             })
-          calculator = Spree::Calculator::FlatRate.create(
-            preferred_currency: 'USD',
-            preferred_amount: msg['precio']
+          calculator = Spree::Calculator::PercentPerItem.create(
+            preferred_percent: (price['amount'] - msg['precio']) / price['amount'] * 100
             )
           promotion_action = Spree::Promotion::Actions::CreateItemAdjustments.create(
             promotion: promotion,
@@ -61,6 +61,7 @@ namespace :aqmp do
             msgTW = "#Promocion!\n" + product['name'] + " a " + msg["precio"].to_s + " CLP "
             msgTW = msgTW + "de " + Time.at(msg['inicio']).to_time.strftime("%d/%m") + " hasta" + Time.at(msg['fin']).to_time.strftime("%d/%m") + "!\n"
             msgTW = msgTW + "Codigo " + msg['codigo']
+            puts 'Posting to FB and Twitter'
             postFB(msgFB, productURL)
             postTW(msgTW, productURL)
           end
