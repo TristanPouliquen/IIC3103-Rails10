@@ -12,6 +12,7 @@ module Spree
         @boleta = boleta_response[0]
       else
         @boleta = {}
+      end
     end
 
     def getBoleta(idBoleta)
