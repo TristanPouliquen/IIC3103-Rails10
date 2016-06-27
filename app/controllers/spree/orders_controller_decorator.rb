@@ -7,7 +7,12 @@ module Spree
 
     def load_boleta
       boleta_factura = BoletaFactura.find_by_factura(params[:id])
-      @boleta = getBoleta(boleta_factura['boleta'])[0]
+      boleta_response = getBoleta(boleta_factura['boleta'])
+      if boleta_response
+        @boleta = boleta_response[0]
+      else
+        @boleta = {}
+      end
     end
 
     def getBoleta(idBoleta)
