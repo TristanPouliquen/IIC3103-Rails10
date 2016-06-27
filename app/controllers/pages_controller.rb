@@ -3,6 +3,22 @@ class PagesController < BodegaController
   def index
   end
 
+  def businessIntelligence
+    saldo_diarios = SaldoDiario.all.pluck(:saldo, :date)
+    @saldo_diarios = []
+    saldo_diarios.each do |item|
+      item = {'date' => item[1].strftime("%F"), "value" => item[0]}
+      @saldo_diarios << item
+    end
+  end
+
+  def dayTransactions
+    date = Time.strptime(params[:date], "%Y-%m-%d").in_time_zone("Santiago")
+    date_1 = date + 1.day
+
+    render json: getTransactions(date.to_i * 1000, date_1.to_i * 1000)
+  end
+
   def home
     ordenesId = OrdenCompra.all.order(created_at: :desc)
     @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}
@@ -45,5 +61,15 @@ class PagesController < BodegaController
     stock_pulmon = JSON.parse(get(ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + ENV['almacen_pulmon'], hmac = hmac).body)
 
     return {'recepcion' => stock_recepcion, 'despacho' => stock_despacho, 'pulmon' => stock_pulmon}
+  end
+
+  def getTransactions(fechaInicio, fechaFin)
+    uri = ENV['general_system_url'] + 'banco/cartola'
+    data = {'id' => ENV['id_cuenta_banco'], 'fechaInicio' =>  fechaInicio, 'fechaFin' => fechaFin}
+
+    response = JSON.parse(post(uri, data=data).body)
+    return response
+  rescue JSON::ParserError
+    return { 'data' => [], 'total' => 0}
   end
 end

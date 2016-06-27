@@ -1,0 +1,176 @@
+<ul class="nav nav-tabs nav-justified" role="tablist">
+  <li role="presentation" class="active"><a href="#saldo" aria-controls="saldo" role="tab" data-toggle="tab">Saldo diario</a></li>
+  <li role="presentation"><a href="#aceptadas" aria-controls="profile" role="tab" data-toggle="tab">Aceptadas</a></li>
+  <li role="presentation"><a href="#rechazadas" aria-controls="messages" role="tab" data-toggle="tab">Rechazadas</a></li>
+  <li role="presentation"><a href="#finalizadas" aria-controls="settings" role="tab" data-toggle="tab">Finalizadas</a></li>
+  <li role="presentation"><a href="#anuladas" aria-controls="settings" role="tab" data-toggle="tab">Anuladas</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane active fade in" id="saldo">
+    <div class="row">
+      <h2>Saldo diario del grupo 10</h1>
+      <h5>Cuenta <%= ENV['id_cuenta_banco'] %></h3>
+      <div id="chartdiv"></div>
+    </div>
+
+    <div id="dailytransactions-container">
+      <div class="row">
+        <h2 id="date">Transacciones del {{date}}</h2>
+        <h5 id="amount">{{amount}} transacciones</h5>
+        <div class="well" id="dailytransactions">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Hora</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Credito</th>
+                <th>Debito</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th id="totalCredit">+ {{total_credit}}</th>
+                <th id="totalDebit">- {{total_debit}}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="aceptadas">
+    2nd
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="rechazadas">
+    3rd
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="finalizadas">
+    4th
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="anuladas">
+    5th
+  </div>
+</div>
+
+<script>
+  $('#dailytransactions-container').hide();
+  var chart = AmCharts.makeChart("chartdiv", {
+    "type": "serial",
+    "theme": "dark",
+    "marginRight": 40,
+    "marginLeft": 40,
+    "autoMarginOffset": 20,
+    "mouseWheelZoomEnabled":true,
+    "dataDateFormat": "YYYY-MM-DD",
+    "valueAxes": [{
+      "id": "v1",
+      "axisAlpha": 0,
+      "position": "left",
+      "ignoreAxisWidth":true
+    }],
+    "balloon": {
+      "borderThickness": 1,
+      "shadowAlpha": 0
+    },
+    "graphs": [{
+      "id": "g1",
+      "balloon":{
+        "drop":true,
+        "adjustBorderColor":false,
+        "color":"#ffffff"
+      },
+      "bullet": "round",
+      "bulletBorderAlpha": 1,
+      "bulletColor": "#FFFFFF",
+      "bulletSize": 5,
+      "hideBulletsCount": 50,
+      "lineThickness": 2,
+      "title": "Saldo diario de la cuenta del grupo 10",
+      "useLineColorForBulletBorder": true,
+      "valueField": "value",
+      "balloonText": "<span style='font-size:16px;'>[[value]] CLP$</span>"
+    }],
+    "chartCursor": {
+      "pan": true,
+      "valueLineEnabled": true,
+      "valueLineBalloonEnabled": true,
+      "cursorAlpha":1,
+      "cursorColor":"#258cbb",
+      "limitToGraph":"g1",
+      "valueLineAlpha":0.2,
+      "valueZoomable":true
+    },
+    "valueScrollbar":{
+      "oppositeAxis":false,
+      "offset":50,
+      "scrollbarHeight":10
+    },
+    "categoryField": "date",
+    "categoryAxis": {
+      "parseDates": true,
+      "dashLength": 1,
+      "minorGridEnabled": true
+    },
+    "export": {
+      "enabled": true
+    },
+    "dataProvider": <%= JSON.generate(@saldo_diarios).html_safe %>
+  });
+
+  chart.addListener('clickGraphItem', function(e){
+    getTransactionsOfDay(e.item.dataContext.date);
+  });
+
+  function getTransactionsOfDay(date){
+    var container = $('#dailytransactions-container');
+    container.hide();
+    var table = $('#dailytransactions').find('table');
+    var tbody = table.find('tbody');
+    var totalCredit = 0;
+    var totalDebit = 0;
+    tbody.empty();
+
+    var groupId = "<%= ENV['id_cuenta_banco'] %>";
+    $.get('/bi/day-transactions/' + date, function(data){
+      container.find('#date').text("Transacciones del " + date);
+      container.find('#amount').text(data.total + " transacciones");
+
+      data.data.forEach(function(element){
+        dateElement = new Date(element['created_at']);
+        var tr = "<tr>";
+        tr += "<td>" + element['_id'] + "</td>";
+        tr += "<td>" + dateElement.getHours() + ":" + dateElement.getMinutes() + ":" + dateElement.getSeconds() + "</td>";
+        tr += "<td>" + element['origen'] + "</td>";
+        tr += "<td>" + element['destino'] + "</td>";
+        if (element['origen'] === groupId) {
+          tr += "<td></td>";
+          tr += "<td>-" + element['monto'].formatMoney() + " CLP</td>";
+          totalDebit += element['monto'];
+        } else {
+          tr += "<td>+" + element['monto'].formatMoney() + " CLP</td>";
+          tr += "<td></td>";
+          totalCredit += element['monto'];
+        }
+        tbody.append(tr);
+      })
+
+      $('#totalCredit').text("+ " + totalCredit.formatMoney() + " CLP");
+      $('#totalDebit').text("- " + totalDebit.formatMoney() + " CLP");
+
+      container.show();
+    });
+  }
+
+  getTransactionsOfDay("<%= @saldo_diarios.last['date'] %>");
+
+</script>

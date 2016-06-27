@@ -36,5 +36,5 @@ rescue JSON::ParserError
 end
 
 def getCurrentDayDate
-  return Time.now.to_date
+  return Time.now.to_date.in_time_zone
 end
