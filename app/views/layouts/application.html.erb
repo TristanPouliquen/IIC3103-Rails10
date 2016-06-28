@@ -7,11 +7,10 @@
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" %>
 
-  <% if current_page?(:controller => "pages", :action => "businessIntelligence") %>
-    <%= javascript_include_tag "https://www.amcharts.com/lib/3/amcharts.js" %>
-    <%= javascript_include_tag "https://www.amcharts.com/lib/3/serial.js" %>
-    <%= javascript_include_tag "https://www.amcharts.com/lib/3/themes/dark.js" %>
-  <% end %>
+  <%= javascript_include_tag "https://www.amcharts.com/lib/3/amcharts.js" %>
+  <%= javascript_include_tag "https://www.amcharts.com/lib/3/serial.js" %>
+  <%= javascript_include_tag "https://www.amcharts.com/lib/3/pie.js" %>
+  <%= javascript_include_tag "https://www.amcharts.com/lib/3/themes/dark.js" %>
   <%= csrf_meta_tags %>
 </head>
 <body>

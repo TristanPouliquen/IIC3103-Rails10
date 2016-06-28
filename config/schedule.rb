@@ -17,4 +17,5 @@ end
 
 every 1.day do
   rake "bi:saldo"
+  rake "bi:stock"
 end

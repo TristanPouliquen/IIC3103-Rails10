@@ -1,7 +1,8 @@
 <ul class="nav nav-tabs nav-justified" role="tablist">
   <li role="presentation" class="active"><a href="#saldo" aria-controls="saldo" role="tab" data-toggle="tab">Saldo diario</a></li>
   <li role="presentation"><a href="#facturacion" aria-controls="facturacion" role="tab" data-toggle="tab">Facturacion diaria</a></li>
-  <li role="presentation"><a href="#logistica" aria-controls="logistica" role="tab" data-toggle="tab">Logistica</a></li>
+  <li role="presentation"><a href="#logistica" aria-controls="logistica" role="tab" data-toggle="tab">Bodegas</a></li>
+  <li role="presentation"><a href="#stock" aria-controls="stock" role="tab" data-toggle="tab">Stock diarios</a></li>
 </ul>
 
 <!-- Tab panes -->
@@ -57,7 +58,36 @@
     </div>
   </div>
   <div role="tabpanel" class="tab-pane fade" id="logistica">
-    3rd
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Bodega de recepcion</h2>
+        <div id="chartrecepciondiv" class="chart"></div>
+      </div>
+      <div class="col-md-6">
+        <h2>Bodega de despacho</h2>
+        <div id="chartdespachodiv" class="chart"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Bodega X</h2>
+        <div id="chartXdiv" class="chart"></div>
+      </div>
+      <div class="col-md-6">
+        <h2>Bodega Y</h2>
+        <div id="chartYdiv" class="chart"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <h2>Bodega de pulmon</h2>
+        <div id="chartpulmondiv" class="chart"></div>
+      </div>
+    </div>
+  </div>
+  <div role="tabpanel" class="tab-pan fade" id="stock">
+  <h2>Stock diarios del grupo 10</h2>
+  <div id="chartstockdiv" class="chart"></div>
   </div>
 </div>
 
@@ -97,7 +127,7 @@
       "title": "Saldo diario de la cuenta del grupo 10",
       "useLineColorForBulletBorder": true,
       "valueField": "value",
-      "balloonText": "<span style='font-size:16px;'>[[value]] CLP$</span>"
+      "balloonText": "<span style='font-size:16px;'>[[value]]\nCLP$</span>"
     }],
     "chartCursor": {
       "pan": true,
@@ -119,9 +149,6 @@
       "parseDates": true,
       "dashLength": 1,
       "minorGridEnabled": true
-    },
-    "export": {
-      "enabled": true
     },
     "dataProvider": <%= JSON.generate(@saldo_diarios).html_safe %>
   });
@@ -188,7 +215,7 @@
       "gridAlpha": 0
     }],
     "graphs": [{
-      "balloonText": "<b>[[title]]</b><br><span style='font-size:14px'>[[category]]: <b>[[value]]</b></span>",
+      "balloonText": "<b>[[title]]</b>: <b>[[value]]</b></span>",
       "fillAlphas": 0.8,
       "labelText": "[[value]]",
       "lineAlpha": 0.3,
@@ -221,10 +248,7 @@
       "axisAlpha": 0,
       "gridAlpha": 0,
       "position": "left"
-    },
-    "export": {
-      "enabled": true
-     }
+    }
   };
 
   dataProvider_num = <%= JSON.generate(@fac['volume']).html_safe %>
@@ -250,4 +274,103 @@
     chartFac.dataProvider = dataProvider_pes;
     chartFac.validateData();
   })
+
+  options_stock = {
+    "type": "pie",
+    "theme": "dark",
+    "titleField": "sku",
+    "valueField": "stock",
+    "labelRadius": 5,
+    "radius": "42%",
+    "innerRadius": "40%",
+    "labelText": "[[title]]",
+    "export": {
+     "enabled": true
+    }
+  }
+
+  var chartRecepcion = AmCharts.makeChart( "chartrecepciondiv", options_stock);
+  chartRecepcion.dataProvider = <%= JSON.generate(@bodegas['recepcion']).html_safe %>
+  chartRecepcion.validateData();
+  var chartDespacho = AmCharts.makeChart( "chartdespachodiv", options_stock);
+  chartDespacho.dataProvider = <%= JSON.generate(@bodegas['despacho']).html_safe %>
+  chartDespacho.validateData();
+  var chartPulmon = AmCharts.makeChart( "chartpulmondiv", options_stock);
+  chartPulmon.dataProvider = <%= JSON.generate(@bodegas['pulmon']).html_safe %>
+  chartPulmon.validateData();
+  var chartX = AmCharts.makeChart( "chartXdiv", options_stock);
+  chartX.dataProvider = <%= JSON.generate(@bodegas['X']).html_safe %>
+  chartX.validateData();
+  var chartY = AmCharts.makeChart( "chartYdiv", options_stock);
+  chartY.dataProvider = <%= JSON.generate(@bodegas['Y']).html_safe %>
+  chartY.validateData();
+
+  var chartStock = AmCharts.makeChart("chartstockdiv", {
+    "type": "serial",
+    "theme": "dark",
+    "marginRight": 40,
+    "marginLeft": 40,
+    "autoMarginOffset": 20,
+    "mouseWheelZoomEnabled":true,
+    "dataDateFormat": "YYYY-MM-DD",
+    "legend": {
+      "useGraphSettings": true
+    },
+    "dataProvider": <%= JSON.generate(@stock_diarios).html_safe %>,
+    "valueAxes": [{
+      "id": "v1",
+      "axisThickness": 2,
+      "axisAlpha": 1,
+      "position": "left",
+      "ignoreAxisWidth":true
+    }],
+    "graphs": [{
+      "bullet": "round",
+      "bulletBorderThickness": 1,
+      "hideBulletsCount": 30,
+      "title": "Maiz",
+      "valueField": "maiz",
+      "fillAlphas": 0
+    }, {
+      "bullet": "square",
+      "bulletBorderThickness": 1,
+      "hideBulletsCount": 30,
+      "title": "Carne",
+      "valueField": "carne",
+      "fillAlphas": 0
+    }, {
+      "bullet": "triangleUp",
+      "bulletBorderThickness": 1,
+      "hideBulletsCount": 30,
+      "title": "Tela de lana",
+      "valueField": "tela_lana",
+      "fillAlphas": 0
+    },{
+      "bullet": "bubble",
+      "bulletBorderThickness": 1,
+      "hideBulletsCount": 30,
+      "title": "Tequila",
+      "valueField": "tequila",
+      "fillAlphas": 0
+    }, {
+      "bullet": "diamond",
+      "bulletBorderThickness": 1,
+      "hideBulletsCount": 30,
+      "title": "Suero de leche",
+      "valueField": "suero_leche",
+      "fillAlphas": 0
+    }, {
+      "bullet": "triangleDown",
+      "bulletBorderThickness": 1,
+      "hideBulletsCount": 30,
+      "title": "Hamburguesas",
+      "valueField": "hamburguesa",
+      "fillAlphas": 0
+    }],
+    "categoryField": "date",
+    "categoryAxis": {
+      "parseDates": false,
+      "axisColor": "#DADADA"
+    },
+  });
 </script>

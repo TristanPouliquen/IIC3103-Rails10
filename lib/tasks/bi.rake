@@ -14,6 +14,16 @@ namespace :bi do
 
   desc "TODO"
   task stock: :environment do
+    date = getCurrentDayDate
+    stock_diario = StockDiario.create!(date: date)
+    stock_diario.maiz = getStock(3)
+    stock_diario.carne = getStock(9)
+    stock_diario.tela_lana = getStock(29)
+    stock_diario.tequila = getStock(35)
+    stock_diario.suero_leche = getStock(41)
+    stock_diario.hamburguesa = getStock(54)
+    stock_diario.save
+    puts date.to_s + ': ' + stock_diario.stock.to_s
   end
 end
 
@@ -27,6 +37,16 @@ def get(uri, hmac=nil)
   end
 
   return http.request(request)
+end
+
+def getStock(sku)
+  stock = 0
+  response = get(ENV['group_system_url'] + 'api/consultar' + sku.to_s)
+  if response.kind_of? Net::HTTPSuccess
+    stock = JSON.parse(response.body)['stock']
+  end
+
+  return stock
 end
 
 def getAccount

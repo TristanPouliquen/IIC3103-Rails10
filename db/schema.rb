@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160628010158) do
+ActiveRecord::Schema.define(version: 20160628202911) do
 
   create_table "boleta_facturas", force: :cascade do |t|
     t.string   "factura",    limit: 255
@@ -1126,6 +1126,13 @@ ActiveRecord::Schema.define(version: 20160628010158) do
 
   add_index "spree_zones", ["default_tax"], name: "index_spree_zones_on_default_tax", using: :btree
   add_index "spree_zones", ["kind"], name: "index_spree_zones_on_kind", using: :btree
+
+  create_table "stock_diarios", force: :cascade do |t|
+    t.date     "date"
+    t.text     "stock",      limit: 65535
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
 
   create_table "transactions", force: :cascade do |t|
     t.string   "idTrx",      limit: 255
