@@ -17,11 +17,12 @@ module Spree
         boleta_creation = put(ENV['general_system_url'] + 'facturas/boleta', data = {'proveedor' => ENV['id_grupo'], 'cliente' => order['email'], 'total' => order['total'].to_i})
 
         if boleta_creation.kind_of? Net::HTTPSuccess
-          BoletaFactura.create(factura: order['number'], boleta: JSON.parse(boleta_creation.body)['_id'])
-          boletaId = JSON.parse(boleta_creation.body)['_id']
+          boleta = JSON.parse(boleta_creation.body)
+          BoletaFactura.create(factura: order['number'], boleta: boleta['_id'], monto: boleta['total'], estado: boleta['estado'])
+          boletaId = boleta['_id']
         else
           flash[:error] = "An error occured in the process of your order: " + boleta_creation.body
-          redirect_to '/spree/checkout/payment'
+          redirect_to '/spree/checkout/payment' && return
         end
       else
         boletaId = boleta_factura['boleta']

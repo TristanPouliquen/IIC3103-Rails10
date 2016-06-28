@@ -6,6 +6,12 @@
   <%= stylesheet_link_tag "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" %>
+
+  <% if current_page?(:controller => "pages", :action => "businessIntelligence") %>
+    <%= javascript_include_tag "https://www.amcharts.com/lib/3/amcharts.js" %>
+    <%= javascript_include_tag "https://www.amcharts.com/lib/3/serial.js" %>
+    <%= javascript_include_tag "https://www.amcharts.com/lib/3/themes/dark.js" %>
+  <% end %>
   <%= csrf_meta_tags %>
 </head>
 <body>
@@ -40,6 +46,12 @@
             </li>
             <li>
               <a href="/api/documentacion">API Documentacion</a>
+            </li>
+            <li
+              <% if current_page?(:controller => 'pages', :action => 'businessIntelligence') %>
+                class="active"
+              <% end %>
+            ><a href="/business-intelligence">Business Intelligence</a>
             </li>
           <% elsif controller.controller_name == "admin" %>
             <li

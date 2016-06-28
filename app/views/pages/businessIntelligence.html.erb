@@ -1,0 +1,256 @@
+<ul class="nav nav-tabs nav-justified" role="tablist">
+  <li role="presentation" class="active"><a href="#saldo" aria-controls="saldo" role="tab" data-toggle="tab">Saldo diario</a></li>
+  <li role="presentation"><a href="#facturacion" aria-controls="facturacion" role="tab" data-toggle="tab">Facturacion diaria</a></li>
+  <li role="presentation"><a href="#logistica" aria-controls="logistica" role="tab" data-toggle="tab">Logistica</a></li>
+  <li role="presentation"><a href="#finalizadas" aria-controls="settings" role="tab" data-toggle="tab">Finalizadas</a></li>
+  <li role="presentation"><a href="#anuladas" aria-controls="settings" role="tab" data-toggle="tab">Anuladas</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane active fade in" id="saldo">
+    <div class="row">
+      <h2>Saldo diario del grupo 10</h2>
+      <h5>Cuenta <%= ENV['id_cuenta_banco'] %></h5>
+      <div id="chartsaldodiv" class="chart"></div>
+    </div>
+
+    <div id="dailytransactions-container">
+      <div class="row">
+        <h2 id="date">Transacciones del {{date}}</h2>
+        <h5 id="amount">{{amount}} transacciones</h5>
+        <div class="well" id="dailytransactions">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Hora</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Credito</th>
+                <th>Debito</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th id="totalCredit">+ {{total_credit}}</th>
+                <th id="totalDebit">- {{total_debit}}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="facturacion">
+    <div class="row">
+      <h2>Facturacion diaria del grupo 10</h2>
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default active" id="numero">En numero</button>
+        <button type="button" class="btn btn-default" id="pesos">En pesos</button>
+      </div>
+      <div id="chartfacdiv" class="chart"></div>
+    </div>
+  </div>
+  <div role="tabpanel" class="tab-pane fade" id="logistica">
+    3rd
+  </div>
+</div>
+
+<script>
+  $('#dailytransactions-container').hide();
+  var chartsaldo = AmCharts.makeChart("chartsaldodiv", {
+    "type": "serial",
+    "theme": "dark",
+    "marginRight": 40,
+    "marginLeft": 40,
+    "autoMarginOffset": 20,
+    "mouseWheelZoomEnabled":true,
+    "dataDateFormat": "YYYY-MM-DD",
+    "valueAxes": [{
+      "id": "v1",
+      "axisAlpha": 0,
+      "position": "left",
+      "ignoreAxisWidth":true
+    }],
+    "balloon": {
+      "borderThickness": 1,
+      "shadowAlpha": 0
+    },
+    "graphs": [{
+      "id": "g1",
+      "balloon":{
+        "drop":true,
+        "adjustBorderColor":false,
+        "color":"#ffffff"
+      },
+      "bullet": "round",
+      "bulletBorderAlpha": 1,
+      "bulletColor": "#FFFFFF",
+      "bulletSize": 5,
+      "hideBulletsCount": 50,
+      "lineThickness": 2,
+      "title": "Saldo diario de la cuenta del grupo 10",
+      "useLineColorForBulletBorder": true,
+      "valueField": "value",
+      "balloonText": "<span style='font-size:16px;'>[[value]] CLP$</span>"
+    }],
+    "chartCursor": {
+      "pan": true,
+      "valueLineEnabled": true,
+      "valueLineBalloonEnabled": true,
+      "cursorAlpha":1,
+      "cursorColor":"#258cbb",
+      "limitToGraph":"g1",
+      "valueLineAlpha":0.2,
+      "valueZoomable":true
+    },
+    "valueScrollbar":{
+      "oppositeAxis":false,
+      "offset":50,
+      "scrollbarHeight":10
+    },
+    "categoryField": "date",
+    "categoryAxis": {
+      "parseDates": true,
+      "dashLength": 1,
+      "minorGridEnabled": true
+    },
+    "export": {
+      "enabled": true
+    },
+    "dataProvider": <%= JSON.generate(@saldo_diarios).html_safe %>
+  });
+
+  chartsaldo.addListener('clickGraphItem', function(e){
+    getTransactionsOfDay(e.item.dataContext.date);
+  });
+
+  function getTransactionsOfDay(date){
+    var container = $('#dailytransactions-container');
+    container.hide();
+    var table = $('#dailytransactions').find('table');
+    var tbody = table.find('tbody');
+    var totalCredit = 0;
+    var totalDebit = 0;
+    tbody.empty();
+
+    var groupId = "<%= ENV['id_cuenta_banco'] %>";
+    $.get('/bi/day-transactions/' + date, function(data){
+      container.find('#date').text("Transacciones del " + date);
+      container.find('#amount').text(data.total + " transacciones");
+
+      data.data.forEach(function(element){
+        dateElement = new Date(element['created_at']);
+        var tr = "<tr>";
+        tr += "<td>" + element['_id'] + "</td>";
+        tr += "<td>" + dateElement.getHours() + ":" + dateElement.getMinutes() + ":" + dateElement.getSeconds() + "</td>";
+        tr += "<td>" + element['origen'] + "</td>";
+        tr += "<td>" + element['destino'] + "</td>";
+        if (element['origen'] === groupId) {
+          tr += "<td></td>";
+          tr += "<td>-" + element['monto'].formatMoney() + " CLP</td>";
+          totalDebit += element['monto'];
+        } else {
+          tr += "<td>+" + element['monto'].formatMoney() + " CLP</td>";
+          tr += "<td></td>";
+          totalCredit += element['monto'];
+        }
+        tbody.append(tr);
+      })
+
+      $('#totalCredit').text("+ " + totalCredit.formatMoney() + " CLP");
+      $('#totalDebit').text("- " + totalDebit.formatMoney() + " CLP");
+
+      container.show();
+    });
+  }
+
+  getTransactionsOfDay("<%= @saldo_diarios.last['date'] %>");
+
+  options = {
+    "type": "serial",
+    "theme": "dark",
+    "legend": {
+      "horizontalGap": 10,
+      "maxColumns": 1,
+      "position": "right",
+    "useGraphSettings": true,
+    "markerSize": 10
+    },
+    "valueAxes": [{
+      "stackType": "regular",
+      "axisAlpha": 0.3,
+      "gridAlpha": 0
+    }],
+    "graphs": [{
+      "balloonText": "<b>[[title]]</b><br><span style='font-size:14px'>[[category]]: <b>[[value]]</b></span>",
+      "fillAlphas": 0.8,
+      "labelText": "[[value]]",
+      "lineAlpha": 0.3,
+      "title": "B2C",
+      "type": "column",
+    "color": "#000000",
+      "valueField": "b2c"
+    }, {
+      "balloonText": "<b>[[title]]</b><br><span style='font-size:14px'>[[category]]: <b>[[value]]</b></span>",
+      "fillAlphas": 0.8,
+      "labelText": "[[value]]",
+      "lineAlpha": 0.3,
+      "title": "FTP",
+      "type": "column",
+    "color": "#000000",
+      "valueField": "ftp"
+    }, {
+      "balloonText": "<b>[[title]]</b><br><span style='font-size:14px'>[[category]]: <b>[[value]]</b></span>",
+      "fillAlphas": 0.8,
+      "labelText": "[[value]]",
+      "lineAlpha": 0.3,
+      "title": "B2B",
+      "type": "column",
+    "color": "#000000",
+      "valueField": "b2b"
+    }],
+    "categoryField": "day",
+    "categoryAxis": {
+      "gridPosition": "start",
+      "axisAlpha": 0,
+      "gridAlpha": 0,
+      "position": "left"
+    },
+    "export": {
+      "enabled": true
+     }
+  };
+
+  options_num = options;
+  options_pes = options;
+  options_num.dataProvider = <%= JSON.generate(@fac['volume']).html_safe %>
+  options_pes.dataProvider = <%= JSON.generate(@fac['amount']).html_safe %>
+
+  var chartFac = AmCharts.makeChart("chartfacdiv", options_num);
+
+  $('#numero').on('click', function() {
+    $('#numero').blur();
+    $('#pesos').removeClass('active');
+    $('#numero').addClass('active');
+
+    chartFac.dataProvider = options_num;
+    chartFac.validateData();
+  })
+
+  $('#pesos').on('click', function() {
+    $('#pesos').blur();
+    $('#numero').removeClass('active');
+    $('#pesos').addClass('active');
+
+    chartFac.dataProvider = options_pes;
+    chartFac.validateData();
+  })
+</script>

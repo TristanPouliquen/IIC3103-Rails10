@@ -14,3 +14,7 @@ end
 every 1.hour do
   rake "aqmp:consume"
 end
+
+every 1.day do
+  rake "bi:saldo"
+end

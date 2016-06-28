@@ -10,6 +10,9 @@ Rails.application.routes.draw do
 
   mount Spree::Core::Engine, at: '/spree'
 
+  get '/business-intelligence' => 'pages#businessIntelligence'
+  get '/bi/day-transactions/:date' => 'pages#dayTransactions'
+
   scope :path => '/bodega' do
     get '/' => 'pages#home'
 

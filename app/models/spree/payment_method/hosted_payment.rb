@@ -43,6 +43,8 @@ module Spree
         #Check for successful response
         transaction_succeeded = boleta['estado'] == 'pagada'
 
+        boleta_factura.update!(estado: boleta['estado'])
+
         return [order, boleta, transaction_succeeded]
       rescue ActiveRecord::RecordNotFound
         #Return nil and false if we couldn't find the order - this is probably bad.
