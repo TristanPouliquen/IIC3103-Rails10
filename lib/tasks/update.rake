@@ -1,36 +1,53 @@
 namespace :update do
   desc "TODO"
   task orden: :environment do
-  	puts Time.now.in_time_zone('Santiago').to_s + ' : Procesando update ordenes de compra'
-  	orden_compras = OrdenCompra.where(estado: ['creada', 'aceptada']).all
-  	orden_compras.each do |orden|
-  		orden_c = getPurchaseOrder(orden['idOc'])
-  		orden.update!(estado: orden_c['estado'], cantidad_despachada: orden_c['cantidadDespachada'])
-  	end
-  	puts "Update de ordenes finalizado"
+    puts Time.now.in_time_zone('Santiago').to_s + ' : Procesando update ordenes de compra'
+    orden_compras = OrdenCompra.where(estado: ['creada', 'aceptada']).all
+    orden_compras.each do |orden|
+      orden_c = getPurchaseOrder(orden['idOc'])
+      orden.update!(estado: orden_c['estado'], cantidad_despachada: orden_c['cantidadDespachada'])
+    end
+    puts "Update de ordenes finalizado"
   end
 
   desc "TODO"
   task factura: :environment do
-  	puts Time.now.in_time_zone('Santiago').to_s + ' : Procesando update de facturas'
-  	facturas = Factura.where(estado: ['pendiente','creada']).all
-  	facturas.each do |fac|
-		bill =  getBill(fac['idFactura'])
-		fac.update!(estado: bill['estado']) 		
-  	end
-  	puts "Update de facturas finalizado"
+    puts Time.now.in_time_zone('Santiago').to_s + ' : Procesando update de facturas'
+    facturas = Factura.where(estado: ['pendiente','creada']).all
+    facturas.each do |fac|
+    bill =  getBill(fac['idFactura'])
+    fac.update!(estado: bill['estado'])
+    end
+    puts "Update de facturas finalizado"
   end
 
   desc "TODO"
   task dispatch: :environment do
-  	puts Time.now.in_time_zone('Santiago').to_s + ' : Procesando despacho de productos no despachados'
-  	orden_compras = OrdenCompra.where(estado: 'aceptada', proveedor: ENV['id_grupo']).all
-  	orden_compras.each do |orden|
-  		if orden['cantidad'] > orden['cantidad_despachada']
-  			factura = Factura.where(idOc: orden['idOc'])
-  			dispatchProducts(orden['idOc'] , factura['idFactura'] , orden['canal'])
-  		end
-  	end
+    puts Time.now.in_time_zone('Santiago').to_s + ' : Procesando despacho de productos no despachados'
+    orden_compras = OrdenCompra.where(estado: 'aceptada', proveedor: ENV['id_grupo']).all
+    orden_compras.each do |orden|
+      if orden['cantidad'] > orden['cantidad_despachada']
+        factura = Factura.where(idOc: orden['idOc'])
+        dispatchProducts(orden['idOc'] , factura['idFactura'] , orden['canal'])
+      end
+    end
+    puts "Despacho de Stock Finalizado"
+  end
+
+  desc "TODO"
+  task procesamientoOc: :environment do
+    puts Time.now.in_time_zone('Santiago').to_s + ' : Introduciendo oredenes de compras creadas y no procesadas'
+    orden_compras = OrdenCompra.where(estado: 'creada', proveedor: ENV['id_grupo'])
+    orden_compras.each do |orden|
+      respuesta = get(ENV['group_system_url']+'api/oc/recibir/'+orden['idOc'])
+      resp = JSON.parse(response.body)
+      if resp['estado']
+        orden.update!(estado: "aceptada")
+      else
+        orden.update!(estado: "rechazada")
+      end
+    end
+    puts "Termino del procesamiento de oc no procesadas"
   end
 
 end
