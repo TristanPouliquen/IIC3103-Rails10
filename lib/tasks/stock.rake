@@ -22,10 +22,10 @@ namespace :stock do
   end
   desc "TODO"
   task emptyRecepcion: :environment do
+    puts Time.now.in_time_zone("Santiago").to_s +': Emptying Recepcion'
     listSku = JSON.parse(getSkusWithStock(ENV['almacen_recepcion']).body)
     listSku.each do |item|
       almacenes = getAlmacenes
-      puts almacenes
       almacenXLibre = 0
       almacenYLibre = 0
       almacenes.each do |almacen|
@@ -45,13 +45,14 @@ namespace :stock do
         moveBatch(item['total']-almacenXLibre, item['_id'],ENV['almacen_recepcion'], ENV['almacen_Y'])
       end
     end
+    puts 'Emptied Recepcion'
   end
   desc "TODO"
   task emptyPulmon: :environment do
+    puts Time.now.in_time_zone("Santiago").to_s +': Emptying Pulmon'
     listSku = JSON.parse(getSkusWithStock(ENV['almacen_pulmon']).body)
     listSku.each do |item|
       almacenes = getAlmacenes
-      puts almacenes
       almacenXLibre = 0
       almacenYLibre = 0
       almacenes.each do |almacen|
@@ -71,6 +72,7 @@ namespace :stock do
         moveBatch(item['total']-almacenXLibre, item['_id'],ENV['almacen_pulmon'], ENV['almacen_Y'])
       end
     end
+    puts 'Emptied Pulmon'
   end
 end
 
