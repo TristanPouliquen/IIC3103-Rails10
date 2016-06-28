@@ -5,6 +5,8 @@ set :output, "/home/administrator/integra10-rails/shared/log/cron.log"
 
 every 4.hours do
   rake "ftp:process"
+  rake "stock:emptyRecepcion"
+  rake "stock:emptyPulmon"
 end
 
 every 10.minutes do

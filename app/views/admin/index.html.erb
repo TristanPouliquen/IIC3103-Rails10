@@ -12,17 +12,21 @@
     <div class="form-group">
       <label for="origin">Origen</label>
       <select name="origin" class="form-control">
-        <option value="recepcion">Recepcion</option>
-        <option value="despacho">Despacho</option>
-        <option value="pulmon">Pulmon</option>
+        <option value="<%= @almacen['recepcion']['_id'] %>">Recepcion</option>
+        <option value="<%= @almacen['despacho']['_id'] %>">Despacho</option]>
+        <option value="<%= @almacen['pulmon']['_id'] %>">Pulmon</option>
+        <option value="<%= @almacen['X']['_id'] %>">X</option>
+        <option value="<%= @almacen['Y']['_id'] %>">Y</option>
       </select>
     </div>
     <div class="form-group">
       <label for="destination">Destino</label>
       <select name="destination" class="form-control">
-        <option value="recepcion">Recepcion</option>
-        <option value="despacho">Despacho</option>
-        <option value="pulmon">Pulmon</option>
+        <option value="<%= @almacen['recepcion']['_id'] %>">Recepcion</option>
+        <option value="<%= @almacen['despacho']['_id'] %>">Despacho</option]>
+        <option value="<%= @almacen['pulmon']['_id'] %>">Pulmon</option>
+        <option value="<%= @almacen['X']['_id'] %>">X</option>
+        <option value="<%= @almacen['Y']['_id'] %>">Y</option>
       </select>
     </div>
     <input type="submit" class="btn btn-small btn-primary" value="Mover">
@@ -34,3 +38,7 @@
 <%= render partial: "shared/almacen", :object => 'despacho' %>
 <h2>Bodega pulmon</h2>
 <%= render partial: "shared/almacen", :object => 'pulmon' %>
+<h2>Bodega X</h2>
+<%= render partial: "shared/almacen", :object => 'X' %>
+<h2>Bodega Y</h2>
+<%= render partial: "shared/almacen", :object => 'Y' %>

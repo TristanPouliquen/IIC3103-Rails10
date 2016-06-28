@@ -58,12 +58,18 @@ class PagesController < BodegaController
         @almacen['despacho'] = almacen
       elsif almacen["pulmon"]
         @almacen['pulmon'] = almacen
+      elsif @almacen['X'].nil?
+        @almacen['X']= almacen
+      else
+        @almacen['Y']=almacen
       end
     end
 
     @almacen['recepcion']['porcentaje'] = ((@almacen['recepcion']["usedSpace"].to_f / @almacen['recepcion']["totalSpace"].to_f) * 100).round(2)
     @almacen['despacho']['porcentaje'] = ((@almacen['despacho']["usedSpace"].to_f / @almacen['despacho']["totalSpace"].to_f) * 100).round(2)
     @almacen['pulmon']['porcentaje'] = ((@almacen['pulmon']["usedSpace"].to_f / @almacen['pulmon']["totalSpace"].to_f) * 100).round(2)
+    @almacen['X']['porcentaje'] = ((@almacen['X']["usedSpace"].to_f / @almacen['X']["totalSpace"].to_f) * 100).round(2)
+    @almacen['Y']['porcentaje'] = ((@almacen['Y']["usedSpace"].to_f / @almacen['Y']["totalSpace"].to_f) * 100).round(2)
 
     @stock = getStockPorAlmacen(@almacen)
   end
