@@ -2,8 +2,6 @@
   <li role="presentation" class="active"><a href="#saldo" aria-controls="saldo" role="tab" data-toggle="tab">Saldo diario</a></li>
   <li role="presentation"><a href="#facturacion" aria-controls="facturacion" role="tab" data-toggle="tab">Facturacion diaria</a></li>
   <li role="presentation"><a href="#logistica" aria-controls="logistica" role="tab" data-toggle="tab">Logistica</a></li>
-  <li role="presentation"><a href="#finalizadas" aria-controls="settings" role="tab" data-toggle="tab">Finalizadas</a></li>
-  <li role="presentation"><a href="#anuladas" aria-controls="settings" role="tab" data-toggle="tab">Anuladas</a></li>
 </ul>
 
 <!-- Tab panes -->
@@ -229,19 +227,18 @@
      }
   };
 
-  options_num = options;
-  options_pes = options;
-  options_num.dataProvider = <%= JSON.generate(@fac['volume']).html_safe %>
-  options_pes.dataProvider = <%= JSON.generate(@fac['amount']).html_safe %>
+  dataProvider_num = <%= JSON.generate(@fac['volume']).html_safe %>
+  dataProvider_pes = <%= JSON.generate(@fac['amount']).html_safe %>
+  options.dataProvider = dataProvider_num;
 
-  var chartFac = AmCharts.makeChart("chartfacdiv", options_num);
+  var chartFac = AmCharts.makeChart("chartfacdiv", options);
 
   $('#numero').on('click', function() {
     $('#numero').blur();
     $('#pesos').removeClass('active');
     $('#numero').addClass('active');
 
-    chartFac.dataProvider = options_num;
+    chartFac.dataProvider = dataProvider_num;
     chartFac.validateData();
   })
 
@@ -250,7 +247,7 @@
     $('#numero').removeClass('active');
     $('#pesos').addClass('active');
 
-    chartFac.dataProvider = options_pes;
+    chartFac.dataProvider = dataProvider_pes;
     chartFac.validateData();
   })
 </script>
