@@ -1,7 +1,7 @@
 <ul class="nav nav-tabs nav-justified" role="tablist">
   <li role="presentation" class="active"><a href="#saldo" aria-controls="saldo" role="tab" data-toggle="tab">Saldo diario</a></li>
-  <li role="presentation"><a href="#aceptadas" aria-controls="profile" role="tab" data-toggle="tab">Aceptadas</a></li>
-  <li role="presentation"><a href="#rechazadas" aria-controls="messages" role="tab" data-toggle="tab">Rechazadas</a></li>
+  <li role="presentation"><a href="#facturacion" aria-controls="facturacion" role="tab" data-toggle="tab">Facturacion diaria</a></li>
+  <li role="presentation"><a href="#logistica" aria-controls="logistica" role="tab" data-toggle="tab">Logistica</a></li>
   <li role="presentation"><a href="#finalizadas" aria-controls="settings" role="tab" data-toggle="tab">Finalizadas</a></li>
   <li role="presentation"><a href="#anuladas" aria-controls="settings" role="tab" data-toggle="tab">Anuladas</a></li>
 </ul>
@@ -10,9 +10,9 @@
 <div class="tab-content">
   <div role="tabpanel" class="tab-pane active fade in" id="saldo">
     <div class="row">
-      <h2>Saldo diario del grupo 10</h1>
-      <h5>Cuenta <%= ENV['id_cuenta_banco'] %></h3>
-      <div id="chartdiv"></div>
+      <h2>Saldo diario del grupo 10</h2>
+      <h5>Cuenta <%= ENV['id_cuenta_banco'] %></h5>
+      <div id="chartsaldodiv" class="chart"></div>
     </div>
 
     <div id="dailytransactions-container">
@@ -48,23 +48,24 @@
       </div>
     </div>
   </div>
-  <div role="tabpanel" class="tab-pane fade" id="aceptadas">
-    2nd
+  <div role="tabpanel" class="tab-pane fade" id="facturacion">
+    <div class="row">
+      <h2>Facturacion diaria del grupo 10</h2>
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default active" id="numero">En numero</button>
+        <button type="button" class="btn btn-default" id="pesos">En pesos</button>
+      </div>
+      <div id="chartfacdiv" class="chart"></div>
+    </div>
   </div>
-  <div role="tabpanel" class="tab-pane fade" id="rechazadas">
+  <div role="tabpanel" class="tab-pane fade" id="logistica">
     3rd
-  </div>
-  <div role="tabpanel" class="tab-pane fade" id="finalizadas">
-    4th
-  </div>
-  <div role="tabpanel" class="tab-pane fade" id="anuladas">
-    5th
   </div>
 </div>
 
 <script>
   $('#dailytransactions-container').hide();
-  var chart = AmCharts.makeChart("chartdiv", {
+  var chartsaldo = AmCharts.makeChart("chartsaldodiv", {
     "type": "serial",
     "theme": "dark",
     "marginRight": 40,
@@ -127,7 +128,7 @@
     "dataProvider": <%= JSON.generate(@saldo_diarios).html_safe %>
   });
 
-  chart.addListener('clickGraphItem', function(e){
+  chartsaldo.addListener('clickGraphItem', function(e){
     getTransactionsOfDay(e.item.dataContext.date);
   });
 
@@ -173,4 +174,83 @@
 
   getTransactionsOfDay("<%= @saldo_diarios.last['date'] %>");
 
+  options = {
+    "type": "serial",
+    "theme": "dark",
+    "legend": {
+      "horizontalGap": 10,
+      "maxColumns": 1,
+      "position": "right",
+    "useGraphSettings": true,
+    "markerSize": 10
+    },
+    "valueAxes": [{
+      "stackType": "regular",
+      "axisAlpha": 0.3,
+      "gridAlpha": 0
+    }],
+    "graphs": [{
+      "balloonText": "<b>[[title]]</b><br><span style='font-size:14px'>[[category]]: <b>[[value]]</b></span>",
+      "fillAlphas": 0.8,
+      "labelText": "[[value]]",
+      "lineAlpha": 0.3,
+      "title": "B2C",
+      "type": "column",
+    "color": "#000000",
+      "valueField": "b2c"
+    }, {
+      "balloonText": "<b>[[title]]</b><br><span style='font-size:14px'>[[category]]: <b>[[value]]</b></span>",
+      "fillAlphas": 0.8,
+      "labelText": "[[value]]",
+      "lineAlpha": 0.3,
+      "title": "FTP",
+      "type": "column",
+    "color": "#000000",
+      "valueField": "ftp"
+    }, {
+      "balloonText": "<b>[[title]]</b><br><span style='font-size:14px'>[[category]]: <b>[[value]]</b></span>",
+      "fillAlphas": 0.8,
+      "labelText": "[[value]]",
+      "lineAlpha": 0.3,
+      "title": "B2B",
+      "type": "column",
+    "color": "#000000",
+      "valueField": "b2b"
+    }],
+    "categoryField": "day",
+    "categoryAxis": {
+      "gridPosition": "start",
+      "axisAlpha": 0,
+      "gridAlpha": 0,
+      "position": "left"
+    },
+    "export": {
+      "enabled": true
+     }
+  };
+
+  options_num = options;
+  options_pes = options;
+  options_num.dataProvider = <%= JSON.generate(@fac['volume']).html_safe %>
+  options_pes.dataProvider = <%= JSON.generate(@fac['amount']).html_safe %>
+
+  var chartFac = AmCharts.makeChart("chartfacdiv", options_num);
+
+  $('#numero').on('click', function() {
+    $('#numero').blur();
+    $('#pesos').removeClass('active');
+    $('#numero').addClass('active');
+
+    chartFac.dataProvider = options_num;
+    chartFac.validateData();
+  })
+
+  $('#pesos').on('click', function() {
+    $('#pesos').blur();
+    $('#numero').removeClass('active');
+    $('#pesos').addClass('active');
+
+    chartFac.dataProvider = options_pes;
+    chartFac.validateData();
+  })
 </script>

@@ -4,12 +4,16 @@ class PagesController < BodegaController
   end
 
   def businessIntelligence
+    # Saldo diario
     saldo_diarios = SaldoDiario.all.pluck(:saldo, :date)
     @saldo_diarios = []
     saldo_diarios.each do |item|
       item = {'date' => item[1].strftime("%F"), "value" => item[0]}
       @saldo_diarios << item
     end
+
+    # Facturacion diaria
+    @fac = getDailyTransaction
   end
 
   def dayTransactions
@@ -71,5 +75,30 @@ class PagesController < BodegaController
     return response
   rescue JSON::ParserError
     return { 'data' => [], 'total' => 0}
+  end
+
+  def getDailyTransaction
+    volume = []
+    amount = []
+
+    date = Time.at(1466740800) # starting on 24-06-2016 at 00:00:00
+
+    while date < Time.now()
+      date_1 = date + 1.day
+
+      orden_compras_ftp = OrdenCompra.where(proveedor: ENV['id_grupo'], canal: "ftp", created_at: date..date_1).pluck(:idOc)
+      orden_compras_b2b = OrdenCompra.where(proveedor: ENV['id_grupo'], canal: "b2b", created_at: date..date_1).pluck(:idOc)
+      factura_b2b = Factura.where(idOc: orden_compras_b2b)
+      factura_ftp = Factura.where(idOc: orden_compras_ftp)
+      boleta_volume = BoletaFactura.where(created_at: date..date_1).count
+      boleta_amount = BoletaFactura.where(created_at: date..date_1).sum('monto')
+
+      volume << {'day' => date.strftime("%d/%m/%Y"), 'ftp' => factura_ftp.count, 'b2b' => factura_b2b.count, 'b2c' => boleta_volume}
+      amount << {'day' => date.strftime("%d/%m/%Y"), 'ftp' => factura_ftp.sum('monto'), 'b2b' => factura_b2b.sum('monto'), 'b2c' => boleta_amount}
+
+      date = date_1
+    end
+
+    return {'volume' => volume, 'amount' => amount}
   end
 end
