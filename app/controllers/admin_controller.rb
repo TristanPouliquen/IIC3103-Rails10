@@ -120,7 +120,7 @@ class AdminController < ApiController
 
     if !purchaseOrder.empty?
       response = sendPurchaseOrder(purchaseOrder['_id'], params[:provider])
-      OrdenCompra.create(idOC: purchaseOrder['_id'], origen: purchaseOrder['proveedor'], destino: purchaseOrder['cliente'], monto: (purchaseOrder['precioUnitario'] * purchaseOrder['cantidad']), canal: purchaseOrder['canal'], cantidad: purchaseOrder['cantidad'], cantidad_despachada: purchaseOrder['cantidadDespachada'], estado: purchaseOrder['estado'])
+      OrdenCompra.create(idOC: purchaseOrder['_id'], proveedor: purchaseOrder['proveedor'], cliente: purchaseOrder['cliente'], monto: (purchaseOrder['precioUnitario'] * purchaseOrder['cantidad']), canal: purchaseOrder['canal'], cantidad: purchaseOrder['cantidad'], cantidad_despachada: purchaseOrder['cantidadDespachada'], estado: purchaseOrder['estado'])
       if response.has_key?('aceptado')
         if response['aceptado']
           flash[:success] = 'Orden de compra enviada y aceptada'
@@ -131,7 +131,7 @@ class AdminController < ApiController
         flash[:error] = "Error en el envio de la orden de compra : #{response.to_s}"
       end
     else
-      flash[:error] = "Error en la creacion de la orden de compra : #{response.to_s}"
+      flash[:error] = "Error en la creacion de la orden de compra : #{purchaseOrder.to_s}"
     end
 
     redirect_to '/bodega/admin/compras'
