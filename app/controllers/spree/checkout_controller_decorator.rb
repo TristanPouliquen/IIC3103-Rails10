@@ -38,11 +38,11 @@ module Spree
     def process_gateway_return
       gateway = PaymentMethod.find_by_type("Spree::PaymentMethod::HostedPayment")
       @order, @boleta, payment_made = gateway.process_response(params)
-
+      now = Time.now
       if @order
-        @order.completed_at = Time.now
+        puts @order
+        @order.update(completed_at: now)
         if payment_made
-          flash[:success] = "Payment successful"
           #Payment successfully processed
           @order.payments.clear
           payment = @order.payments.create
@@ -53,6 +53,7 @@ module Spree
           @order.state = "complete"
           @order.payment_state = "paid"
           @order.shipment_state = "pending"
+          @order.update(state: "complete", payment_state: "paid", shipment_state: "pending")
 
           address = Spree::Address.find(@order['ship_address_id'])
           address_string = formatAddress(address)
@@ -71,17 +72,13 @@ module Spree
                 stock_item.adjust_count_on_hand(-quantity)
                 stock_item.save
                 dispatchBatch(quantity, sku, price.to_i, boleta_factura[:boleta], address_string)
-                @order.shipment_state = "shipped"
-                @order.save
+                @order.update(shipment_state: "shipped")
               end
             end
           end
         else
           flash[:danger] = "Payment canceled"
-          @order.state = "canceled"
-          @order.payment_state = "void"
-          @order.shipment_state = "void"
-          @order.canceled_at = Time.now
+          @order.update(state: "canceled", payment_state: "failed", shipment_state: "canceled", canceled_at: now)
         end
 
         if @order.completed? or @order.canceled?
