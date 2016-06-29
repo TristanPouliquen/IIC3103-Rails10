@@ -16,12 +16,12 @@ namespace :bi do
   task stock: :environment do
     date = getCurrentDayDate
     stock_diario = StockDiario.create!(date: date)
-    stock_diario.maiz = getStock(3)
-    stock_diario.carne = getStock(9)
-    stock_diario.tela_lana = getStock(29)
-    stock_diario.tequila = getStock(35)
-    stock_diario.suero_leche = getStock(41)
-    stock_diario.hamburguesa = getStock(54)
+    stock_diario.maiz = getStockForSku(3)
+    stock_diario.carne = getStockForSku(9)
+    stock_diario.tela_lana = getStockForSku(29)
+    stock_diario.tequila = getStockForSku(35)
+    stock_diario.suero_leche = getStockForSku(41)
+    stock_diario.hamburguesa = getStockForSku(54)
     stock_diario.save
     puts date.to_s + ': ' + stock_diario.stock.to_s
   end
@@ -39,9 +39,9 @@ def get(uri, hmac=nil)
   return http.request(request)
 end
 
-def getStock(sku)
+def getStockForSku(sku)
   stock = 0
-  response = get(ENV['group_system_url'] + 'api/consultar' + sku.to_s)
+  response = get(ENV['group_system_url'] + 'api/consultar/' + sku.to_s)
   if response.kind_of? Net::HTTPSuccess
     stock = JSON.parse(response.body)['stock']
   end
