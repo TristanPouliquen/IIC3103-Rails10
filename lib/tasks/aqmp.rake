@@ -54,7 +54,7 @@ namespace :aqmp do
             )
 
           if msg['publicar']
-            productURL = ENV['group_system_url'] + "spre/product/" + product['slug']
+            productURL = ENV['group_system_url'] + "spree/products/" + product['slug']
             msgFB = "Nueva promocion!\nDisfruta de " + product['name'] + " al precio increible de " + msg['precio'].to_s + " CLP "
             msgFB = msgFB + "del " + Time.at(msg['inicio']).to_time.strftime("%d/%m") + " hasta el " + Time.at(msg['fin']).to_time.strftime("%d/%m") + "!\n"
             msgFB = msgFB + "Cliquea el enlace y utiliza el codigo " + msg['codigo'] + "!"
