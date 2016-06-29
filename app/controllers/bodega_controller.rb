@@ -89,21 +89,31 @@ class BodegaController < ApplicationController
     stockX = getStockAlmacenes(ENV['almacen_X'])
     stockY = getStockAlmacenes(ENV['almacen_Y'])
     if stockX.has_key?(sku)&&stockX['sku']>amount
-      moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'], idOc, precio)
+      moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'])
     else
       stock_X = stockX.has_key?(sku) ? stockX['sku']:0;
-      moveProducts(ENV['almacen_X'] , sku, stock_X, ENV['almacen_despacho'], idOc, precio)
-      moveProducts(ENV['almacen_Y'] , sku, amount-stock_X, ENV['almacen_despacho'], idOc, precio)
+      moveProducts(ENV['almacen_X'] , sku, stock_X, ENV['almacen_despacho'])
+      moveProducts(ENV['almacen_Y'] , sku, amount-stock_X, ENV['almacen_despacho'])
     end
-    moveProducts(ENV['almacen_despacho'] , sku, amount, destinationId, idOc, precio)
+    moveProductsForB2B(ENV['almacen_despacho'] , sku, amount, destinationId, idOc, precio)
   end
 
-  def moveProducts(originId, sku, amount, destinationId, idOc, precio)
+  def moveProducts(originId, sku, amount, destinationId)
     response = getStock(originId, sku, amount)
     if response.kind_of? Net::HTTPSuccess
       originProductList = JSON.parse(response.body)
       originProductList.each do |product|
-        moverStockBodega(product['_id'], destinationId , idOc, precio)
+        moverStock(product['_id'], destinationId)
+      end
+    end
+  end
+
+  def moveProductsForB2B(originId, sku, amount, destinationId, idOC, precio)
+    response = getStock(originId, sku, amount)
+    if response.kind_of? Net::HTTPSuccess
+      originProductList = JSON.parse(response.body)
+      originProductList.each do |product|
+        moverStockBodega(product['_id'], destinationId, idOC, precio)
       end
     end
   end
@@ -135,10 +145,10 @@ class BodegaController < ApplicationController
     end
 
     if stock>amount
-      moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'], idOc, precio)
+      moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'])
     else
-      moveProducts(ENV['almacen_X'] , sku, stock, ENV['almacen_despacho'], idOc, precio)
-      moveProducts(ENV['almacen_Y'] , sku, amount-stock, ENV['almacen_despacho'], idOc, precio)
+      moveProducts(ENV['almacen_X'] , sku, stock, ENV['almacen_despacho'])
+      moveProducts(ENV['almacen_Y'] , sku, amount-stock, ENV['almacen_despacho'])
     end
     moveProductsForSpree(ENV['almacen_despacho'] , sku, amount, direccion, idOc, precio)
   end
@@ -148,7 +158,7 @@ class BodegaController < ApplicationController
     if response.kind_of? Net::HTTPSuccess
       originProductList = JSON.parse(response.body)
       originProductList.each do |product|
-        despacharStock(product['_id'], direccion, idOc, precio)
+        despacharStock(product['_id'], direccion, precio, idOc)
       end
     end
   end

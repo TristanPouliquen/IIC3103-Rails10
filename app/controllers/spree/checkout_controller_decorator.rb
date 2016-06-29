@@ -71,7 +71,7 @@ module Spree
                 stock_item = StockItem.find_by_variant_id(variant['id'])
                 stock_item.adjust_count_on_hand(-quantity)
                 stock_item.save
-                dispatchBatch(quantity, sku, price.to_i, @boleta['_id'], address_string)
+                dispatchBatch(quantity, sku, price.to_i, "000000000000000000000000", address_string)
                 @order.update(shipment_state: "shipped")
               end
             end
@@ -181,10 +181,10 @@ module Spree
         end
 
         if stock>amount
-          moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'], idOc, precio)
+          moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'])
         else
-          moveProducts(ENV['almacen_X'] , sku, stock, ENV['almacen_despacho'], idOc, precio)
-          moveProducts(ENV['almacen_Y'] , sku, amount-stock, ENV['almacen_despacho'], idOc, precio)
+          moveProducts(ENV['almacen_X'] , sku, stock, ENV['almacen_despacho'])
+          moveProducts(ENV['almacen_Y'] , sku, amount-stock, ENV['almacen_despacho'])
         end
         moveProductsForSpree(ENV['almacen_despacho'] , sku, amount, direccion, idOc, precio)
       end
@@ -194,7 +194,7 @@ module Spree
         if response.kind_of? Net::HTTPSuccess
           originProductList = JSON.parse(response.body)
           originProductList.each do |product|
-            despacharStock(product['_id'], direccion, idOc, precio)
+            despacharStock(product['_id'], direccion, precio, idOc)
           end
         end
       end
@@ -211,7 +211,7 @@ module Spree
     end
 
     def formatAddress(address)
-      return address['address1'] + "\n" + address['address2'] + "\n" + address['city'] + " " + address['zipcode']
+      return address['address1'] + " / " + address['address2'] + " / " + address['city'] + " " + address['zipcode']
     end
 
 
@@ -226,22 +226,22 @@ module Spree
       return get(uri, hmac= hmac)
     end
 
-    def moveProducts(originId, sku, amount, destinationId, idOc, precio)
+    def moveProducts(originId, sku, amount, destinationId)
       response = getStock(originId, sku, amount)
       if response.kind_of? Net::HTTPSuccess
         originProductList = JSON.parse(response.body)
         originProductList.each do |product|
-          moverStockBodega(product['_id'], destinationId , idOc, precio)
+          moverStock(product['_id'], destinationId)
         end
       end
     end
 
-    def moverStockBodega(productoId, almacenId, oc, precio)
+    def moverStock(productoId, almacenId)
       hmac = generateHash('POST' + productoId.to_s + almacenId.to_s)
-      uri = ENV['bodega_system_url'] + 'moveStockBodega'
-      data= {"productoId"=>productoId, "almacenId"=>almacenId, "oc"=>oc, "precio"=> precio}
+      uri = ENV['bodega_system_url'] + 'moveStock'
+      data= {"productoId"=>productoId, "almacenId"=>almacenId}
 
-      return post(uri, data= data, hmac= hmac)
+      return post(uri, data= data , hmac= hmac )
     end
   end
 end
