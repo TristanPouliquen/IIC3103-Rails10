@@ -127,12 +127,18 @@ class BodegaController < ApplicationController
   def moveBatchFromAlmacenForSpree(amount, sku, precio, idOc, direccion)
     stockX = getStockAlmacenes(ENV['almacen_X'])
     stockY = getStockAlmacenes(ENV['almacen_Y'])
-    if stockX.has_key?(sku)&&stockX['sku']>amount
+    stock = 0
+    stockX.each do |stockItem|
+      if stockItem.has_key?('_id') && stockItem['_id'] == sku
+        stock = stockItem['total']
+      end
+    end
+
+    if stock>amount
       moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'], idOc, precio)
     else
-      stock_X = stockX.has_key?(sku) ? stockX['sku']:0;
-      moveProducts(ENV['almacen_X'] , sku, stock_X, ENV['almacen_despacho'], idOc, precio)
-      moveProducts(ENV['almacen_Y'] , sku, amount-stock_X, ENV['almacen_despacho'], idOc, precio)
+      moveProducts(ENV['almacen_X'] , sku, stock, ENV['almacen_despacho'], idOc, precio)
+      moveProducts(ENV['almacen_Y'] , sku, amount-stock, ENV['almacen_despacho'], idOc, precio)
     end
     moveProductsForSpree(ENV['almacen_despacho'] , sku, amount, direccion, idOc, precio)
   end
@@ -148,8 +154,8 @@ class BodegaController < ApplicationController
   end
 
   def getStockAlmacenes(almacenId)
-    response = getSkusWithStock(alamacenId)
-    stock = JSON.parse(responseY.body)
+    response = getSkusWithStock(almacenId)
+    stock = JSON.parse(response.body)
   end
 
   def producirStock(sku, trxId, cantidad)

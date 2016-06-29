@@ -71,7 +71,7 @@ module Spree
                 stock_item = StockItem.find_by_variant_id(variant['id'])
                 stock_item.adjust_count_on_hand(-quantity)
                 stock_item.save
-                dispatchBatch(quantity, sku, price.to_i, boleta_factura[:boleta], address_string)
+                dispatchBatch(quantity, sku, price.to_i, @boleta['_id'], address_string)
                 @order.update(shipment_state: "shipped")
               end
             end
@@ -105,6 +105,16 @@ module Spree
       end
     end
 
+    def generateHash(data)
+
+      secret = ENV["clave_bodega"]
+      hmac = OpenSSL::HMAC.digest(OpenSSL::Digest.new('sha1'), secret.encode("ASCII"), data.encode("ASCII"))
+      signature = Base64.encode64(hmac).chomp
+      theoretical_header = 'INTEGRACION grupo10:' + signature
+
+      return theoretical_header
+    end
+
     def get(uri, hmac=nil)
       uri = URI.parse(uri)
       http = Net::HTTP.new(uri.host, uri.port)
@@ -130,6 +140,20 @@ module Spree
       return http.request(request)
     end
 
+    def post(uri,data = {}, hmac=nil)
+      uri = URI.parse(uri)
+      http = Net::HTTP.new(uri.host, uri.port)
+
+      request = Net::HTTP::Post.new(uri.request_uri, initheader = {'Content-Type' => 'application/json'})
+      if hmac
+        request["Authorization"] = hmac
+      end
+
+      request.set_form_data(data)
+
+      return http.request(request)
+    end
+
     def despacharStock(productoId, direccion, precio, oc)
         hmac = generateHash('DELETE'+ productoId.to_s + direccion.to_s + precio.to_s + oc.to_s)
         uri  = ENV['bodega_system_url'] + 'stock'
@@ -149,12 +173,18 @@ module Spree
       def moveBatchFromAlmacenForSpree(amount, sku, precio, idOc, direccion)
         stockX = getStockAlmacenes(ENV['almacen_X'])
         stockY = getStockAlmacenes(ENV['almacen_Y'])
-        if stockX.has_key?(sku)&&stockX['sku']>amount
+        stock = 0
+        stockX.each do |stockItem|
+          if stockItem.has_key?('_id') && stockItem['_id'] == sku
+            stock = stockItem['total']
+          end
+        end
+
+        if stock>amount
           moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'], idOc, precio)
         else
-          stock_X = stockX.has_key?(sku) ? stockX['sku']:0;
-          moveProducts(ENV['almacen_X'] , sku, stock_X, ENV['almacen_despacho'], idOc, precio)
-          moveProducts(ENV['almacen_Y'] , sku, amount-stock_X, ENV['almacen_despacho'], idOc, precio)
+          moveProducts(ENV['almacen_X'] , sku, stock, ENV['almacen_despacho'], idOc, precio)
+          moveProducts(ENV['almacen_Y'] , sku, amount-stock, ENV['almacen_despacho'], idOc, precio)
         end
         moveProductsForSpree(ENV['almacen_despacho'] , sku, amount, direccion, idOc, precio)
       end
@@ -182,6 +212,36 @@ module Spree
 
     def formatAddress(address)
       return address['address1'] + "\n" + address['address2'] + "\n" + address['city'] + " " + address['zipcode']
+    end
+
+
+    def getStockAlmacenes(almacenId)
+      response = getSkusWithStock(almacenId)
+      stock = JSON.parse(response.body)
+    end
+
+    def getSkusWithStock(almacenId)
+      hmac = generateHash('GET' + almacenId.to_s)
+      uri = ENV['bodega_system_url'] + 'skusWithStock?almacenId=' + almacenId.to_s
+      return get(uri, hmac= hmac)
+    end
+
+    def moveProducts(originId, sku, amount, destinationId, idOc, precio)
+      response = getStock(originId, sku, amount)
+      if response.kind_of? Net::HTTPSuccess
+        originProductList = JSON.parse(response.body)
+        originProductList.each do |product|
+          moverStockBodega(product['_id'], destinationId , idOc, precio)
+        end
+      end
+    end
+
+    def moverStockBodega(productoId, almacenId, oc, precio)
+      hmac = generateHash('POST' + productoId.to_s + almacenId.to_s)
+      uri = ENV['bodega_system_url'] + 'moveStockBodega'
+      data= {"productoId"=>productoId, "almacenId"=>almacenId, "oc"=>oc, "precio"=> precio}
+
+      return post(uri, data= data, hmac= hmac)
     end
   end
 end
