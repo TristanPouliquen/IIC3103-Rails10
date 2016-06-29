@@ -39,10 +39,6 @@ module Spree
       gateway = PaymentMethod.find_by_type("Spree::PaymentMethod::HostedPayment")
       @order, @boleta, payment_made = gateway.process_response(params)
 
-      puts @order.class
-      puts @boleta
-      puts payment_made
-
       if @order
         if payment_made
           #Payment successfully processed
@@ -52,6 +48,9 @@ module Spree
           payment.amount = params[:amount] || @order.total
           payment.payment_method = gateway
           payment.complete
+          @order.payment_state = "paid"
+          @order.shipment_state = "pending"
+          @order.save
 
           address = Spree::Address.find(@order['ship_address_id'])
           address_string = formatAddress(address)
@@ -70,6 +69,8 @@ module Spree
                 stock_item.adjust_count_on_hand(-quantity)
                 stock_item.save
                 dispatchBatch(quantity, sku, price.to_i, boleta_factura[:boleta], address_string)
+                @order.shipment_state = "shipped"
+                @order.save
               end
             end
           end
@@ -79,6 +80,8 @@ module Spree
         else
           @order.payments.clear
           @order.state = "canceled"
+          @order.payment_state = "void"
+          @order.shipment_state = "void"
           @order.canceled_at = Time.now
           @order.completed_at = Time.now
           @order.save
