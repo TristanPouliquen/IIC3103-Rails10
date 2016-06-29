@@ -39,76 +39,78 @@ module Spree
       gateway = PaymentMethod.find_by_type("Spree::PaymentMethod::HostedPayment")
       @order, @boleta, payment_made = gateway.process_response(params)
 
-      if @order
-        @order.update!(completed_at: Time.now)
-        if payment_made
-          flash[:success] = "Payment successful"
-          #Payment successfully processed
-          @order.payments.clear
-          payment = @order.payments.create
-          payment.started_processing
-          payment.amount = params[:amount] || @order.total
-          payment.payment_method = gateway
-          payment.complete
-          @order.state = "complete"
-          @order.payment_state = "paid"
-          @order.shipment_state = "pending"
-          @order.update!(state: "complete", payment_state: "paid", shipment_state: "pending")
-
-          address = Spree::Address.find(@order['ship_address_id'])
-          address_string = formatAddress(address)
-
-          @order.line_items.each do |item|
-            variant = Spree::Variant.find(item['variant_id'])
-            if variant.nil?
-              next
-            else
-              sku = variant['sku']
-              quantity = item['quantity']
-              price = item['price']
-
-              Thread.new do
-                stock_item = StockItem.find_by_variant_id(variant['id'])
-                stock_item.adjust_count_on_hand(-quantity)
-                stock_item.save
-                dispatchBatch(quantity, sku, price.to_i, boleta_factura[:boleta], address_string)
-                @order.shipment_state = "shipped"
-                @order.save
-              end
-            end
-          end
-        else
-          flash[:danger] = "Payment canceled"
-          # @order.state = "canceled"
-          # @order.payment_state = "void"
-          # @order.shipment_state = "void"
-          # @order.canceled_at = Time.now
-          @order.update!(state: "canceled", payment_state: "void", shipment_state: "void", canceled_at: Time.now)
-        end
-
-        if @order.completed? or @order.canceled?
-          if @order.state == "complete"
-            flash[:notice] = I18n.t(:order_processed_successfully)
-          elsif @order.state == "canceled"
-            flash[:danger] = I18n.t(:order_processed_successfully)
-          end
-
-          boleta_factura = BoletaFactura.find_by_factura(@order['number'])
-          if !boleta_factura['processed']
-            boleta_factura.update(processed: true)
-          end
-
-          @order.save
-          redirect_to order_path(@order)
-        else
-          redirect_to checkout_state_path(@order.state)
-        end
-      else
-        #Order not passed through correctly
-        flash[:error] = I18n.t(:order_missing)
-        redirect_to checkout_path
-      end
+      render json: @order, root: false
     end
+    #   if @order
+    #     @order.update!(completed_at: Time.now)
+    #     if payment_made
+    #       flash[:success] = "Payment successful"
+    #       #Payment successfully processed
+    #       @order.payments.clear
+    #       payment = @order.payments.create
+    #       payment.started_processing
+    #       payment.amount = params[:amount] || @order.total
+    #       payment.payment_method = gateway
+    #       payment.complete
+    #       @order.state = "complete"
+    #       @order.payment_state = "paid"
+    #       @order.shipment_state = "pending"
+    #       @order.update!(state: "complete", payment_state: "paid", shipment_state: "pending")
+
+    #       address = Spree::Address.find(@order['ship_address_id'])
+    #       address_string = formatAddress(address)
+
+    #       @order.line_items.each do |item|
+    #         variant = Spree::Variant.find(item['variant_id'])
+    #         if variant.nil?
+    #           next
+    #         else
+    #           sku = variant['sku']
+    #           quantity = item['quantity']
+    #           price = item['price']
+
+    #           Thread.new do
+    #             stock_item = StockItem.find_by_variant_id(variant['id'])
+    #             stock_item.adjust_count_on_hand(-quantity)
+    #             stock_item.save
+    #             dispatchBatch(quantity, sku, price.to_i, boleta_factura[:boleta], address_string)
+    #             @order.shipment_state = "shipped"
+    #             @order.save
+    #           end
+    #         end
+    #       end
+    #     else
+    #       flash[:danger] = "Payment canceled"
+    #       # @order.state = "canceled"
+    #       # @order.payment_state = "void"
+    #       # @order.shipment_state = "void"
+    #       # @order.canceled_at = Time.now
+    #       @order.update!(state: "canceled", payment_state: "void", shipment_state: "void", canceled_at: Time.now)
+    #     end
+
+    #     if @order.completed? or @order.canceled?
+    #       if @order.state == "complete"
+    #         flash[:notice] = I18n.t(:order_processed_successfully)
+    #       elsif @order.state == "canceled"
+    #         flash[:danger] = I18n.t(:order_processed_successfully)
+    #       end
+
+    #       boleta_factura = BoletaFactura.find_by_factura(@order['number'])
+    #       if !boleta_factura['processed']
+    #         boleta_factura.update(processed: true)
+    #       end
+
+    #       @order.save
+    #       redirect_to order_path(@order)
+    #     else
+    #       redirect_to checkout_state_path(@order.state)
+    #     end
+    #   else
+    #     #Order not passed through correctly
+    #     flash[:error] = I18n.t(:order_missing)
+    #     redirect_to checkout_path
+    #   end
+    # end
 
     def get(uri, hmac=nil)
       uri = URI.parse(uri)
