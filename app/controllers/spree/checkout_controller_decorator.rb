@@ -40,7 +40,7 @@ module Spree
       @order, @boleta, payment_made = gateway.process_response(params)
 
       if @order
-        @order.completed_at = Time.now
+        @order.update!(completed_at: Time.now)
         if payment_made
           flash[:success] = "Payment successful"
           #Payment successfully processed
@@ -53,6 +53,7 @@ module Spree
           @order.state = "complete"
           @order.payment_state = "paid"
           @order.shipment_state = "pending"
+          @order.update!(state: "complete", payment_state: "paid", shipment_state: "pending")
 
           address = Spree::Address.find(@order['ship_address_id'])
           address_string = formatAddress(address)
@@ -78,17 +79,18 @@ module Spree
           end
         else
           flash[:danger] = "Payment canceled"
-          @order.state = "canceled"
-          @order.payment_state = "void"
-          @order.shipment_state = "void"
-          @order.canceled_at = Time.now
+          # @order.state = "canceled"
+          # @order.payment_state = "void"
+          # @order.shipment_state = "void"
+          # @order.canceled_at = Time.now
+          @order.update!(state: "canceled", payment_state: "void", shipment_state: "void", canceled_at: Time.now)
         end
 
         if @order.completed? or @order.canceled?
           if @order.state == "complete"
             flash[:notice] = I18n.t(:order_processed_successfully)
           elsif @order.state == "canceled"
-            flash[:danger] = I18n.t(:payment_canceled)
+            flash[:danger] = I18n.t(:order_processed_successfully)
           end
 
           boleta_factura = BoletaFactura.find_by_factura(@order['number'])
