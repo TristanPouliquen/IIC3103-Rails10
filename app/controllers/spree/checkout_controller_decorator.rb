@@ -40,9 +40,9 @@ module Spree
       @order, @boleta, payment_made = gateway.process_response(params)
       now = Time.now
       if @order
+        puts @order
         @order.update(completed_at: now)
         if payment_made
-          flash[:success] = "Payment successful"
           #Payment successfully processed
           @order.payments.clear
           payment = @order.payments.create
@@ -72,25 +72,20 @@ module Spree
                 stock_item.adjust_count_on_hand(-quantity)
                 stock_item.save
                 dispatchBatch(quantity, sku, price.to_i, boleta_factura[:boleta], address_string)
-                @order.shipment_state = "shipped"
-                @order.save
+                @order.update(shipment_state: "shipped")
               end
             end
           end
         else
           flash[:danger] = "Payment canceled"
-          # @order.state = "canceled"
-          # @order.payment_state = "void"
-          # @order.shipment_state = "void"
-          # @order.canceled_at = now
-          @order.update(state: "canceled", payment_state: "void", shipment_state: "void", canceled_at: now)
+          @order.update(state: "canceled", payment_state: "failed", shipment_state: "canceled", canceled_at: now)
         end
 
         if @order.completed? or @order.canceled?
           if @order.state == "complete"
             flash[:notice] = I18n.t(:order_processed_successfully)
           elsif @order.state == "canceled"
-            flash[:danger] = I18n.t(:order_processed_successfully)
+            flash[:danger] = I18n.t(:payment_canceled)
           end
 
           boleta_factura = BoletaFactura.find_by_factura(@order['number'])
