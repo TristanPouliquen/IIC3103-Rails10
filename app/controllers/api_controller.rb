@@ -205,12 +205,20 @@ class ApiController < BodegaController
   end
 
   def cancelPurchaseOrder(idOc)
+    oc = OrdenCompra.find_by_idOC(idOc)
+    if !oc.nil?
+      oc.update(estado: 'anulada')
+    end
     response = delete(ENV["general_system_url"] + "oc/anular/" + idOc.to_s)
 
     return response
   end
 
   def validatePurchaseOrder(idOc)
+    oc = OrdenCompra.find_by_idOC(idOc)
+    if !oc.nil?
+      oc.update(estado: 'aceptada')
+    end
     # Call mare.ing.puc.cl/oc/recepcionar/idOc
     response = post(ENV["general_system_url"] + "oc/recepcionar/" + idOc.to_s)
 
@@ -219,7 +227,10 @@ class ApiController < BodegaController
 
   def rejectPurchaseOrder(idOc, message)
     # Call mare.ing.puc.cl/oc/rechazar/idOc
-
+    oc = OrdenCompra.find_by_idOC(idOc)
+    if !oc.nil?
+      oc.update(estado: 'rechazada')
+    end
     response = post(ENV["general_system_url"] + 'oc/rechazar/' + idOc.to_s, {'rechazo' => message})
 
     return response
@@ -252,12 +263,19 @@ class ApiController < BodegaController
   end
 
   def rejectBill(idBill, message)
+    fac = Factura.find_by_idFactura(ifBill)
+    if !oc.nil?
+      fac.update(estado: 'rechazada')
+    end
     response = post(ENV['general_system_url'] + 'facturas/reject', {'id' => idBill.to_s, 'motivo' => message})
-
     return response
   end
 
   def cancelBill(idBill, message)
+    fac = Factura.find_by_idFactura(ifBill)
+    if !oc.nil?
+      fac.update(estado: 'anulada')
+    end
     response post(ENV['general_system_url'] + 'facturas/cancel', {'id' => idBill.to_s, 'motivo' => message})
 
     return response
@@ -279,6 +297,10 @@ class ApiController < BodegaController
   end
 
   def markBillAsPayed(idBill, idTrx, providerId)
+    fac = Factura.find_by_idFactura(ifBill)
+    if !oc.nil?
+      fac.update(estado: 'pagada')
+    end
     response = post(ENV['general_system_url'] + 'facturas/pay', {'id' => idBill})
 
     groupIdHash = JSON.parse(ENV['groups_id_to_number'])
