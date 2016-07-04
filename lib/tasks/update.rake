@@ -47,7 +47,7 @@ namespace :update do
   task datosFac: :environment do
     facs = Factura.all
     facs.each do |fac|
-      fac_p = getBill(fac[:idFactura])
+      fac_p = getBill(fac[:idFactura])[0]
       fac.update(monto: fac_p['total'], estado: fac_p['estado'], proveedor: fac_p['proveedor'], cliente: fac_p['cliente'], idOc: fac_p['oc'])
     end
   end

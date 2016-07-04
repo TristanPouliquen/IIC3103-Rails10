@@ -9,6 +9,10 @@ every 4.hours do
   rake "stock:emptyPulmon"
 end
 
+every 2.hours do
+  rake 'update:dispatch'
+end
+
 every 10.minutes do
 	rake "stock:update"
 end
