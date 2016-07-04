@@ -36,16 +36,15 @@ class PagesController < BodegaController
   end
 
   def home
-    ordenesId = OrdenCompra.all.order(created_at: :desc)
-    @ordenes = {'creada' => [], 'aceptada' => [], 'rechazada' => [], 'finalizada' => [], 'anulada' => []}
-    ordenesId.each do |ordenC|
-      orden = JSON.parse(get(ENV['general_system_url'] + 'oc/obtener/' + ordenC['idOC']).body)[0]
-      if orden.nil?
-        OrdenCompra.where(idOC: ordenC['idOC']).destroy_all
-      else
-        @ordenes[orden['estado']] << orden
-      end
-    end
+    ordenes_c = OrdenCompra.all.where(estado: 'creada').order(created_at: :desc)
+    ordenes_ac = OrdenCompra.all.where(estado: 'aceptada').order(created_at: :desc)
+    ordenes_r = OrdenCompra.all.where(estado: 'rechazada').order(created_at: :desc)
+    ordenes_f = OrdenCompra.all.where(estado: 'finalizada').order(created_at: :desc)
+    ordenes_an = OrdenCompra.all.where(estado: 'anulada').order(created_at: :desc)
+    @ordenes = {
+      'creada' => ordenes_c, 'aceptada' => ordenes_ac,
+      'rechazada' => ordenes_r, 'finalizada' => ordenes_f, 'anulada' => ordenes_an
+    }
   end
 
   def warehouses
