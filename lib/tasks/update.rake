@@ -63,7 +63,9 @@ namespace :update do
       factura = Factura.where(idOc: oc['idOc'])
       amount = oc['cantidad'] - oc['cantidad_despachada']
       puts Time.now.in_time_zone('Santiago').to_s + ' : Enviando ' + amount.to_s + ' para OC ' + oc['id'].to_s
-      dispatchProducts(oc['idOc'], factura['idFactura'], oc['canal'], amount)
+      Thread.new do
+        dispatchProducts(oc['idOc'], factura['idFactura'], oc['canal'], amount)
+      end
     end
   end
 end
