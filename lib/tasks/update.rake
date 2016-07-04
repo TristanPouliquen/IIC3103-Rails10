@@ -45,12 +45,13 @@ namespace :update do
 
   desc "TODO"
   task dispatch: :environment do
+    puts Time.now.in_time_zone('Santiago').to_s + ': Despachando lo que falta'
     ocs = OrdenCompra.where(estado: 'creada', proveedor: ENV['id_grupo'].to_s).where("cantidad_despachada < cantidad")
-    ocs.each do |oc|
-      factura = Factura.where(idOc: oc['idOc'])
-      amount = oc['cantidad'] - oc['cantidad_despachada']
-      puts Time.now.in_time_zone('Santiago').to_s + ' : Enviando ' + amount.to_s + ' para OC ' + oc['id'].to_s
-      Thread.new do
+    Thread.new do
+      ocs.each do |oc|
+        factura = Factura.where(idOc: oc['idOc'])
+        amount = oc['cantidad'] - oc['cantidad_despachada']
+        puts Time.now.in_time_zone('Santiago').to_s + ' : Enviando ' + amount.to_s + ' de ' + oc['sku'] + ' para OC ' + oc['idOc'].to_s
         dispatchProducts(oc['idOc'], factura['idFactura'], oc['canal'], amount)
       end
     end
@@ -104,14 +105,19 @@ def getBill(idBill)
   def moveBatchFromAlmacenForSpree(amount, sku, precio, idOc, direccion)
     stockX = getStockAlmacenes(ENV['almacen_X'])
     stockY = getStockAlmacenes(ENV['almacen_Y'])
-    if stockX.has_key?(sku)&&stockX['sku']>amount
-      moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'], idOc, precio)
-    else
-      stock_X = stockX.has_key?(sku) ? stockX['sku']:0;
-      moveProducts(ENV['almacen_X'] , sku, stock_X, ENV['almacen_despacho'], idOc, precio)
-      moveProducts(ENV['almacen_Y'] , sku, amount-stock_X, ENV['almacen_despacho'], idOc, precio)
+    stock_X = 0
+    stockX.each do |stockItem|
+      if stockItem['_id'] == sku
+        stock_X = stockItem['total']
+      end
     end
-    moveProductsForSpree(ENV['almacen_despacho'] , sku, amount, direccion, idOc, precio)
+    if stock_X>amount
+      moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'])
+    else
+      moveProducts(ENV['almacen_X'] , sku, stock_X, ENV['almacen_despacho'])
+      moveProducts(ENV['almacen_Y'] , sku, amount-stock_X, ENV['almacen_despacho'])
+    end
+    moveProductsForB2B(ENV['almacen_despacho'] , sku, amount, destinationId, idOc, precio)
   end
 
   def moveProducts(originId, sku, amount, destinationId, idOc, precio)
