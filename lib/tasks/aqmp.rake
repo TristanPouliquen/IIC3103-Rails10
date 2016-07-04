@@ -45,7 +45,7 @@ namespace :aqmp do
             'product_ids_string' => product['id'].to_s,
             'preferred_match_policy' => 'any'
             })
-          calculator = Spree::Calculator::PercentPerItem.create(
+          calculator = Spree::Calculator::PercentOnLineItem.create(
             preferred_percent: (price['amount'] - msg['precio']) / price['amount'] * 100
             )
           promotion_action = Spree::Promotion::Actions::CreateItemAdjustments.create(
