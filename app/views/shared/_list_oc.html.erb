@@ -42,9 +42,9 @@
           <td><%= orden['canal'] %></td>
           <td><%= orden['sku'] %></td>
           <td><%= orden['cantidad'] %></td>
-          <td><%= orden['precioUnitario']*orden['cantidad'] %></td>
-          <td><%= orden['cantidadDespachada'] %></td>
-          <% if orden.has_key?('rechazo') %>
+          <td><%= orden['monto'] %></td>
+          <td><%= orden['cantidad_despachada'] %></td>
+          <% if orden.has_attribute?('rechazo') %>
             <td><%= orden['rechazo'] %></td>
           <% end %>
         </tr>
