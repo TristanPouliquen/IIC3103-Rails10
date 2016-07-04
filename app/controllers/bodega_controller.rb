@@ -88,10 +88,15 @@ class BodegaController < ApplicationController
   def moveBatchFromAlmacen(sku, amount, destinationId, idOc, precio)
     stockX = getStockAlmacenes(ENV['almacen_X'])
     stockY = getStockAlmacenes(ENV['almacen_Y'])
-    if stockX.has_key?(sku)&&stockX['sku']>amount
+    stock_X = 0
+    stockX.each do |stockItem|
+      if stockItem['_id'] == sku
+        stock_X = stockItem['total']
+      end
+    end
+    if stock_X>amount
       moveProducts(ENV['almacen_X'] , sku, amount, ENV['almacen_despacho'])
     else
-      stock_X = stockX.has_key?(sku) ? stockX['sku']:0;
       moveProducts(ENV['almacen_X'] , sku, stock_X, ENV['almacen_despacho'])
       moveProducts(ENV['almacen_Y'] , sku, amount-stock_X, ENV['almacen_despacho'])
     end
@@ -103,7 +108,10 @@ class BodegaController < ApplicationController
     if response.kind_of? Net::HTTPSuccess
       originProductList = JSON.parse(response.body)
       originProductList.each do |product|
-        moverStock(product['_id'], destinationId)
+        response = moverStock(product['_id'], destinationId)
+        if !response.kind_of? Net::HTTPSuccess
+          raise response.body.to_s
+        end
       end
     end
   end
