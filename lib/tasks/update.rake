@@ -51,7 +51,7 @@ namespace :update do
       ocs.each do |oc|
         factura = Factura.where(idOc: oc['idOc']).first
         amount = oc['cantidad'] - oc['cantidad_despachada']
-        if amount > 0 and !factura.empty?
+        if amount > 0 and !factura.nil?
           puts Time.now.in_time_zone('Santiago').to_s + ' : Enviando ' + amount.to_s + ' de ' + oc['sku'] + ' para OC ' + oc['idOc'].to_s
           dispatchProducts(oc['idOc'], factura['idFactura'], oc['canal'], amount)
         end

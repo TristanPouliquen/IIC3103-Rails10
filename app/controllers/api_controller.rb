@@ -243,6 +243,8 @@ class ApiController < BodegaController
     bill = JSON.parse(response.body)
     idBill = bill['_id']
 
+    Factura.create!(estado: bill['estado'], idFactura: bill['_id'], monto: bill['total'], proveedor: bill['proveedor'], cliente: bill['cliente'])
+
     groupIdHash = JSON.parse(ENV['groups_id_to_number'])
 
     if groupIdHash.has_key?(bill['cliente'])
@@ -263,8 +265,8 @@ class ApiController < BodegaController
   end
 
   def rejectBill(idBill, message)
-    fac = Factura.find_by_idFactura(ifBill)
-    if !oc.nil?
+    fac = Factura.find_by_idFactura(idBill)
+    if !fac.nil?
       fac.update(estado: 'rechazada')
     end
     response = post(ENV['general_system_url'] + 'facturas/reject', {'id' => idBill.to_s, 'motivo' => message})
@@ -272,8 +274,8 @@ class ApiController < BodegaController
   end
 
   def cancelBill(idBill, message)
-    fac = Factura.find_by_idFactura(ifBill)
-    if !oc.nil?
+    fac = Factura.find_by_idFactura(idBill)
+    if !fac.nil?
       fac.update(estado: 'anulada')
     end
     response post(ENV['general_system_url'] + 'facturas/cancel', {'id' => idBill.to_s, 'motivo' => message})
@@ -297,8 +299,8 @@ class ApiController < BodegaController
   end
 
   def markBillAsPayed(idBill, idTrx, providerId)
-    fac = Factura.find_by_idFactura(ifBill)
-    if !oc.nil?
+    fac = Factura.find_by_idFactura(idBill)
+    if !fac.nil?
       fac.update(estado: 'pagada')
     end
     response = post(ENV['general_system_url'] + 'facturas/pay', {'id' => idBill})
