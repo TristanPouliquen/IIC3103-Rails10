@@ -45,19 +45,19 @@ namespace :update do
   end
 
   desc "TODO"
-  task updateDatosOc: :environment do
+  task datosOc: :environment do
     ocs = OrdenCompra.all
     ocs.each do |oc|
-      oc_p = getPurchaseOrder(oc[:idOc])
+      oc_p = getPurchaseOrder(oc[:idOC])
       oc.update(sku: oc_p['sku'], estado: oc_p['estado'])
-      if oc_p['estado'] == "rechazada" && oc_p.has_key('rechazo')
+      if oc_p['estado'] == "rechazada" && oc_p.has_key?('rechazo')
         oc.update(rechazo: oc_p['rechazo'])
       end
     end
   end
 
   desc "TODO"
-  task updateDispatch: :environment do
+  task dispatch: :environment do
     ocs = OrdenCompra.where("cantidad_despachada < cantidad")
     ocs.each do |oc|
       factura = Factura.where(idOc: oc['idOc'])
