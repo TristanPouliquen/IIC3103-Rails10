@@ -22,19 +22,6 @@ namespace :update do
   end
 
   desc "TODO"
-  task dispatch: :environment do
-    puts Time.now.in_time_zone('Santiago').to_s + ' : Procesando despacho de productos no despachados'
-    orden_compras = OrdenCompra.where(estado: 'aceptada', proveedor: ENV['id_grupo']).all
-    orden_compras.each do |orden|
-      if orden['cantidad'] > orden['cantidad_despachada']
-        factura = Factura.where(idOc: orden['idOc'])
-        dispatchProducts(orden['idOc'] , factura['idFactura'] , orden['canal'])
-      end
-    end
-    puts "Despacho de Stock Finalizado"
-  end
-
-  desc "TODO"
   task procesamientoOc: :environment do
     puts Time.now.in_time_zone('Santiago').to_s + ' : Introduciendo oredenes de compras creadas y no procesadas'
     orden_compras = OrdenCompra.where(estado: 'creada', proveedor: ENV['id_grupo'])
@@ -58,7 +45,7 @@ namespace :update do
 
   desc "TODO"
   task dispatch: :environment do
-    ocs = OrdenCompra.where("cantidad_despachada < cantidad")
+    ocs = OrdenCompra.where(estado: 'creada', proveedor: ENV['id_grupo'].to_s).where("cantidad_despachada < cantidad")
     ocs.each do |oc|
       factura = Factura.where(idOc: oc['idOc'])
       amount = oc['cantidad'] - oc['cantidad_despachada']
