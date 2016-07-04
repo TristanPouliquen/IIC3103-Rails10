@@ -50,6 +50,20 @@ namespace :update do
     ocs.each do |oc|
       oc_p = getPurchaseOrder(oc[:idOc])
       oc.update(sku: oc_p['sku'], estado: oc_p['estado'])
+      if oc_p['estado'] == "rechazada" && oc_p.has_key('rechazo')
+        oc.update(rechazo: oc_p['rechazo'])
+      end
+    end
+  end
+
+  desc "TODO"
+  task updateDispatch: :environment do
+    ocs = OrdenCompra.where("cantidad_despachada < cantidad")
+    ocs.each do |oc|
+      factura = Factura.where(idOc: oc['idOc'])
+      amount = oc['cantidad'] - oc['cantidad_despachada']
+      puts Time.now.in_time_zone('Santiago').to_s + ' : Enviando ' + amount.to_s + ' para OC ' + oc['id'].to_s
+      dispatchProducts(oc['idOc'], factura['idFactura'], oc['canal'], amount)
     end
   end
 end
@@ -71,11 +85,11 @@ def getBill(idBill)
     return {}
   end
 
- def dispatchProducts(idOc, idBill, canal)
+ def dispatchProducts(idOc, idBill, canal, amount=nil)
     purchaseOrder = getPurchaseOrder(idOc)
     groupsAlmacenIdHash = JSON.parse(ENV['groups_id_to_almacen'])
     groupsNumberHash = JSON.parse(ENV['groups_id_to_number'])
-    amount = purchaseOrder['cantidad']
+    amount = amount.nil? ? purchaseOrder['cantidad'] : amount
     sku = purchaseOrder['sku']
     unitPrice = purchaseOrder['precioUnitario']
     idOc = purchaseOrder['_id']
