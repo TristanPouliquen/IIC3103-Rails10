@@ -44,6 +44,15 @@ namespace :update do
   end
 
   desc "TODO"
+  task datosFac: :environment do
+    facs = Factura.all
+    facs.each do |fac|
+      fac_p = getBill(fac[:idFactura])
+      fac.update(monto: fac_p['total'], estado: fac_p['estado'], proveedor: fac_p['proveedor'], cliente: fac_p['cliente'], idOc: fac_p['oc'])
+    end
+  end
+
+  desc "TODO"
   task dispatch: :environment do
     puts Time.now.in_time_zone('Santiago').to_s + ': Despachando lo que falta'
     ocs = OrdenCompra.where(estado: 'aceptada', proveedor: ENV['id_grupo'].to_s)
