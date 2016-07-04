@@ -46,13 +46,15 @@ namespace :update do
   desc "TODO"
   task dispatch: :environment do
     puts Time.now.in_time_zone('Santiago').to_s + ': Despachando lo que falta'
-    ocs = OrdenCompra.where(estado: 'creada', proveedor: ENV['id_grupo'].to_s).where("cantidad_despachada < cantidad")
+    ocs = OrdenCompra.where(estado: 'aceptada', proveedor: ENV['id_grupo'].to_s)
     Thread.new do
       ocs.each do |oc|
-        factura = Factura.where(idOc: oc['idOc'])
+        factura = Factura.where(idOc: oc['idOc']).first
         amount = oc['cantidad'] - oc['cantidad_despachada']
-        puts Time.now.in_time_zone('Santiago').to_s + ' : Enviando ' + amount.to_s + ' de ' + oc['sku'] + ' para OC ' + oc['idOc'].to_s
-        dispatchProducts(oc['idOc'], factura['idFactura'], oc['canal'], amount)
+        if amount > 0 and !factura.empty?
+          puts Time.now.in_time_zone('Santiago').to_s + ' : Enviando ' + amount.to_s + ' de ' + oc['sku'] + ' para OC ' + oc['idOc'].to_s
+          dispatchProducts(oc['idOc'], factura['idFactura'], oc['canal'], amount)
+        end
       end
     end
   end
