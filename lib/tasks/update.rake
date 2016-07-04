@@ -58,11 +58,10 @@ namespace :update do
     ocs = OrdenCompra.where(estado: 'aceptada', proveedor: ENV['id_grupo'].to_s)
     Thread.new do
       ocs.each do |oc|
-        factura = Factura.where(idOc: oc['idOc']).first
         amount = oc['cantidad'] - oc['cantidad_despachada']
-        if amount > 0 and !factura.nil?
+        if amount > 0
           puts Time.now.in_time_zone('Santiago').to_s + ' : Enviando ' + amount.to_s + ' de ' + oc['sku'] + ' para OC ' + oc['idOc'].to_s
-          dispatchProducts(oc['idOc'], factura['idFactura'], oc['canal'], amount)
+          dispatchProducts(oc['idOc'], "lol", oc['canal'], amount)
         end
       end
     end
@@ -100,7 +99,9 @@ def getBill(idBill)
     else
       almacenId = groupsAlmacenIdHash[purchaseOrder['cliente']]
       moveBatchBodega(amount, sku, unitPrice, idOc, almacenId)
-      get('http://integra' + groupsNumberHash[purchaseOrder['cliente']].to_s + '.ing.puc.cl/api/despachos/recibir/' + idBill)
+      if idBill != "lol"
+        get('http://integra' + groupsNumberHash[purchaseOrder['cliente']].to_s + '.ing.puc.cl/api/despachos/recibir/' + idBill)
+      end
     end
   end
 
